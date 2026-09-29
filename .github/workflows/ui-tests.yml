@@ -14,8 +14,28 @@ jobs:
       - name: Проверка кода репозитория
         uses: actions/checkout@v6
 
-      - name: Загрузка образа с Docker Hub
-        run: docker pull ilanokhin/python-ui-testing:latest
+      - name: Восстановление образа из кеша
+        id: cache-restore
+        uses: actions/cache/restore@v6
+        with:
+          path: docker-image.tar
+          key: docker-image-for-python-ui-testing
+
+      - name: Загрузка образа с Docker Hub (если не было в кеше)
+        if: steps.cache-restore.outputs.cache-hit != 'true'
+        run: |
+          docker pull ilanokhin/python-ui-testing:latest
+          docker save ilanokhin/python-ui-testing:latest > docker-image.tar
+
+      - name: Сохранение загруженного образа в кеш (если не было в кеше)
+        if: steps.cache-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: docker-image.tar
+          key: docker-image-for-python-ui-testing
+
+      - name: Загрузка образа в Docker
+        run: docker load < docker-image.tar
 
       - name: Запуск UI тестов
         run: |
