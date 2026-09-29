@@ -1,0 +1,7 @@
+services:
+  ui-tests:
+    image: python-ui-testing:latest
+    build: .
+    volumes:
+      - .:/docker/project
+    command: /bin/sh -c "pytest --headless=true || true; allure generate allure-data -c --single-file"

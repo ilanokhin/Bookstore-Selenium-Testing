@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Подключение к GitHub" type="ShConfigurationType">
-    <option name="SCRIPT_TEXT" value="git remote set-url origin git@github.com:ilanokhin/google-search-python-project.git" />
+    <option name="SCRIPT_TEXT" value="git remote set-url origin git@github.com:ilanokhin/Bookstore-UI-Project.git" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
     <option name="SCRIPT_PATH" value="" />
     <option name="SCRIPT_OPTIONS" value="" />
