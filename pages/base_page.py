@@ -3,7 +3,6 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoAlertPresentException
 from typing import Any
-from enums.screenshot_options import ScreenshotOptions
 from base_element.element import Element
 from config import *
 
@@ -45,8 +44,7 @@ class BasePage:
         allure.attach(data, attachment_type=allure.attachment_type.TEXT, name=name)
 
     def check_element(self, element_data: tuple, is_present: bool = True, is_clickable: bool | None = True,
-                      make_screenshot: ScreenshotOptions = ScreenshotOptions.ON_ERROR,
-                      timeout: float = TIMEOUT) -> Element:
+                      make_screenshot: ScreenshotOptions = SCREENSHOT_MODE, timeout: float = TIMEOUT) -> Element:
         element = Element(self.driver, element_data[1], timeout)
         allure_step = "Проверить "
         assert_error = f"Элемент '{element_data[0]}' "
@@ -119,7 +117,7 @@ class BasePage:
 
     def compare_elements(self, element1_data: tuple, element2_data: tuple, attribute_to_compare: str = "text",
                          element2_old_value: str = "", element2_name: str = "",
-                         make_screenshot: ScreenshotOptions = ScreenshotOptions.ON_ERROR) -> None:
+                         make_screenshot: ScreenshotOptions = SCREENSHOT_MODE) -> None:
         element1 = self.get_element_attribute(element1_data, attribute_to_compare)
 
         if element2_old_value and element2_name:
@@ -139,7 +137,7 @@ class BasePage:
                 raise AssertionError(error)
 
     def should_be_element_changed(self, element_data: tuple, old_attribute_value: str, attribute: str = "text",
-                                  make_screenshot: ScreenshotOptions = ScreenshotOptions.ON_ERROR) -> None:
+                                  make_screenshot: ScreenshotOptions = SCREENSHOT_MODE) -> None:
         element = self.check_element(element_data)
         result = element.is_attribute_changed(attribute, old_attribute_value)
 
@@ -174,6 +172,7 @@ class BasePage:
 
     def check_in_url(self, included_text: str) -> None:
         with allure.step(f"Проверить наличие '{included_text}' в URL страницы"):
+            self.allure_txt(self.get_url(), "URL страницы")
             assert included_text in self.get_url(), f"Текущий URL не содержит '{included_text}'"
 
     def get_alert_message(self) -> str:
