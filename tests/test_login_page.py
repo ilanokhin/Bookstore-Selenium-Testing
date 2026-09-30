@@ -3,8 +3,7 @@ from pages.login_page import LoginPage
 from elements.login_page_elements import LoginPageElements
 
 
-@allure.suite("Тест страницы логина")
-@allure.sub_suite("Страница логина")
+@allure.sub_suite("Тест страницы логина")
 class TestLoginPage:
     @allure.title("Регистрация нового пользователя")
     def test_new_user_registration(self, driver, fake):
