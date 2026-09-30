@@ -7,7 +7,6 @@ from elements.login_page_elements import LoginPageElements
 from elements.basket_page_elements import BasketPageElements
 
 
-@allure.suite("Тест главной страницы")
 @allure.sub_suite("Логин с главной страницы")
 class TestLoginFromMainPage:
     @allure.title("Гость может перейти на страницу логина")
@@ -25,7 +24,6 @@ class TestLoginFromMainPage:
         page.check_element(element.LOGIN_LINK)
 
 
-@allure.suite("Тест главной страницы")
 @allure.title("Гость, перейдя с главной страницы в корзину, не должен видеть там товары")
 def test_guest_should_not_see_products_in_basket_opened_from_main_page(driver):
     page, element = MainPage(driver), MainPageElements()

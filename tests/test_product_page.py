@@ -8,7 +8,6 @@ from elements.basket_page_elements import BasketPageElements
 from elements.login_page_elements import LoginPageElements
 
 
-@allure.suite("Тест страницы товара")
 @allure.sub_suite("Пользователь добавляет товар в корзину")
 class TestUserAddToBasketFromProductPage:
     @allure.title("Пользователь не видит сообщение о добавлении товара при переходе на его страницу")
@@ -30,7 +29,6 @@ class TestUserAddToBasketFromProductPage:
 
 
 @pytest.mark.parametrize("offer_number", (1, pytest.param(2, marks=pytest.mark.xfail), 3))
-@allure.suite("Тест страницы товара")
 @allure.title("Гость может добавить товар в корзину")
 def test_guest_can_add_product_to_basket(driver, offer_number):
     page, element = ProductPage(driver), ProductPageElements()
@@ -42,7 +40,6 @@ def test_guest_can_add_product_to_basket(driver, offer_number):
     page.basket_cost_message_should_contain_product_price()
 
 
-@allure.suite("Тест страницы товара")
 @allure.title("Гость должен видеть ссылку на логин на странице товара")
 def test_guest_should_see_login_link_on_product_page(driver):
     page, element = ProductPage(driver), ProductPageElements()
@@ -50,7 +47,6 @@ def test_guest_should_see_login_link_on_product_page(driver):
     page.check_element(element.LOGIN_LINK)
 
 
-@allure.suite("Тест страницы товара")
 @allure.title("Гость не видит сообщение о добавлении товара при переходе на его страницу")
 def test_guest_cant_see_product_added_message(driver):
     page, element = ProductPage(driver), ProductPageElements()
@@ -59,7 +55,6 @@ def test_guest_cant_see_product_added_message(driver):
     page.check_element(element.PRODUCT_ADDED_MESSAGE, is_present=False)
 
 
-@allure.suite("Тест страницы товара")
 @allure.title("Гость не видит товары в корзине, при переходе со страницы товара")
 def test_guest_cant_see_product_in_basket_opened_from_product_page(driver):
     page, element = ProductPage(driver), ProductPageElements()
@@ -70,7 +65,6 @@ def test_guest_cant_see_product_in_basket_opened_from_product_page(driver):
     page.check_element(element.EMPTY_BASKET_TEXT)
 
 
-@allure.suite("Тест страницы товара")
 @allure.title("Гость может перейти на страницу логина со страницы товара")
 def test_guest_can_go_to_login_page_from_product_page(driver):
     page, element = ProductPage(driver), ProductPageElements()
