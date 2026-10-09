@@ -1,4 +1,3 @@
-import time
 import re
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.common.exceptions import TimeoutException
@@ -20,34 +19,28 @@ class Element:
         self._size = len(self._elements)
 
     @staticmethod
-    def find_elements(driver: WebDriver, locator: tuple[str, str], timeout: float, wait: WaitUntil) -> list:
-        start_time = time.time()
-
-        while time.time() - start_time < timeout:
+    def wait_for_elements(locator: tuple[str, str], wait: WaitUntil):
+        def _predicate(driver: WebDriver):
             elements = driver.find_elements(*locator)
 
-            if not elements:
-                time.sleep(0.1)
-                continue
-
-            if wait == WaitUntil.PRESENT:
-                return elements
-
-            elif wait == WaitUntil.VISIBLE:
-                visible = [element for element in elements if element.is_displayed()]
-
-                if visible:
-                    return visible
-
+            if wait == WaitUntil.VISIBLE:
+                elements = [element for element in elements if element.is_displayed()]
             elif wait == WaitUntil.CLICKABLE:
-                clickable = [element for element in elements if element.is_displayed() and element.is_enabled()]
+                elements = [element for element in elements if element.is_enabled() and element.is_displayed()]
 
-                if clickable:
-                    return clickable
+            return elements if elements else False
 
-            time.sleep(0.1)
+        return _predicate
 
-        return []
+    @staticmethod
+    def find_elements(driver: WebDriver, locator: tuple[str, str], timeout: float, wait: WaitUntil) -> list:
+        waiting = WebDriverWait(driver, timeout)
+
+        try:
+            elements = waiting.until(Element.wait_for_elements(locator, wait))
+            return elements
+        except TimeoutException:
+            return []
 
     def __repr__(self) -> str:
         return f"\nЭлемент(локатор: '{self.locator[1]}', количество: {self._size})"
