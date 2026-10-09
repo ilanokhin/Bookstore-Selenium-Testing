@@ -20,7 +20,7 @@ jobs:
       - name: Запуск UI тестов
         run: |
           docker run --rm -v ${{ github.workspace }}:/docker/project ilanokhin/python-ui-testing:latest \
-            /bin/sh -c "apk update; apk upgrade chromium-chromedriver geckodriver; pytest --headless=true -n=auto --reruns=3 --reruns-delay=5"
+            /bin/sh -c "pytest --headless=true -n=auto --reruns=3 --reruns-delay=5"
 
       - name: Создание Allure отчета
         if: always()

@@ -20,7 +20,6 @@ def driver(request: pytest.FixtureRequest):
 
     options = FirefoxOptions() if browser == "firefox" else ChromeOptions()
     options.add_argument("--no-sandbox")
-    options.page_load_strategy = "eager"
 
     if browser != "firefox":
         options.add_argument("--disable-blink-features=AutomationControlled")
