@@ -20,6 +20,8 @@ def driver(request: pytest.FixtureRequest):
 
     options = FirefoxOptions() if browser == "firefox" else ChromeOptions()
     options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")
     options.page_load_strategy = "eager"
 
     if browser != "firefox":
