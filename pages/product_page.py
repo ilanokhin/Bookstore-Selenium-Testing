@@ -20,10 +20,9 @@ class ProductPage(BasePage):
         self.check_element(ProductPageElements.PRODUCT_PRICE)
 
     @allure.step("Решить задачу в алёрте")
-    def solve_quiz(self):
-        x = self.get_alert_message().split(" ")[2]
-        result = str(math.log(abs((12 * math.sin(float(x))))))
-        self.send_to_alert(result)
+    def solve_quiz(self, alert_message: str):
+        x = alert_message.split(" ")[2]
+        return str(math.log(abs((12 * math.sin(float(x))))))
 
     def product_added_message_should_contain_product_name(self):
         product_name = self.get_element_text(ProductPageElements.PRODUCT_NAME)

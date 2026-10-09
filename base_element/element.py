@@ -1,3 +1,5 @@
+import time
+import re
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.keys import Keys
@@ -6,7 +8,6 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from enums.wait_until import WaitUntil
 from config import *
-import re
 
 
 class Element:
@@ -18,38 +19,44 @@ class Element:
         self._elements = Element.find_elements(driver, locator, timeout, wait)
         self._size = len(self._elements)
 
-    def get_selenium_element(self, element_index: int = 0) -> WebElement:
-        return self._elements[element_index]
-
-    @staticmethod
-    def wait_for_elements(locator: tuple[str, str], wait: WaitUntil):
-        def _predicate(driver: WebDriver):
-            elements = driver.find_elements(*locator)
-
-            if wait == WaitUntil.VISIBLE:
-                elements = [element for element in elements if element.is_displayed()]
-            elif wait == WaitUntil.CLICKABLE:
-                elements = [element for element in elements if element.is_enabled() and element.is_displayed()]
-
-            return elements if elements else False
-
-        return _predicate
-
     @staticmethod
     def find_elements(driver: WebDriver, locator: tuple[str, str], timeout: float, wait: WaitUntil) -> list:
-        waiting = WebDriverWait(driver, timeout)
+        start_time = time.time()
 
-        try:
-            elements = waiting.until(Element.wait_for_elements(locator, wait))
-            return elements
-        except TimeoutException:
-            return []
+        while time.time() - start_time < timeout:
+            elements = driver.find_elements(*locator)
+
+            if not elements:
+                time.sleep(0.1)
+                continue
+
+            if wait == WaitUntil.PRESENT:
+                return elements
+
+            elif wait == WaitUntil.VISIBLE:
+                visible = [element for element in elements if element.is_displayed()]
+
+                if visible:
+                    return visible
+
+            elif wait == WaitUntil.CLICKABLE:
+                clickable = [element for element in elements if element.is_displayed() and element.is_enabled()]
+
+                if clickable:
+                    return clickable
+
+            time.sleep(0.1)
+
+        return []
 
     def __repr__(self) -> str:
         return f"\nЭлемент(локатор: '{self.locator[1]}', количество: {self._size})"
 
     def __len__(self) -> int:
         return self._size
+
+    def get_selenium_element(self, element_index: int = 0) -> WebElement:
+        return self._elements[element_index]
 
     def is_present(self) -> bool:
         return bool(self._elements)
@@ -69,7 +76,20 @@ class Element:
     def click(self) -> None:
         self._elements[0].click()
 
-    def attribute_values(self, attribute: str = "text") -> list:
+    def press(self, *keys_to_press: str | Keys) -> None:
+        self._elements[0].send_keys(*keys_to_press)
+
+    def get_attribute(self, attribute: str = "text") -> str:
+        if attribute == "text":
+            attribute_value = self._elements[0].text
+        else:
+            attribute_value = self._elements[0].get_attribute(attribute)
+            attribute_value = attribute_value if attribute_value else ""
+            attribute_value = re.sub("<.*?>", "", attribute_value)
+
+        return attribute_value
+
+    def get_attribute_list(self, attribute: str = "text") -> list:
         if attribute == "text":
             attribute_values = [element.text for element in self._elements]
         else:
@@ -77,22 +97,11 @@ class Element:
 
             for element in self._elements:
                 attribute_value = element.get_attribute(attribute)
+                attribute_value = attribute_value if attribute_value else ""
                 attribute_value = re.sub("<.*?>", "", attribute_value)
                 attribute_values.append(attribute_value)
 
         return attribute_values
-
-    def press(self, *keys_to_press: str | Keys) -> None:
-        self._elements[0].send_keys(*keys_to_press)
-
-    def attribute(self, attribute: str = "text") -> str:
-        if attribute == "text":
-            attribute_value = self._elements[0].text
-        else:
-            attribute_value = self._elements[0].get_attribute(attribute)
-            attribute_value = re.sub("<.*?>", "", attribute_value)
-
-        return attribute_value
 
     def is_attribute_changed(self, attribute: str, old_value: str) -> bool:
         try:
@@ -102,3 +111,6 @@ class Element:
             return False
 
         return True
+
+    def scroll_to(self) -> None:
+        self.driver.execute_script("arguments[0].scrollIntoView();", self._elements[0])

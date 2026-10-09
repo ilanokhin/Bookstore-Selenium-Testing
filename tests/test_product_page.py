@@ -22,8 +22,7 @@ class TestUserAddToBasketFromProductPage:
         page, element = ProductPage(driver), ProductPageElements()
         page.open("https://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer1")
         page.should_be_product_page()
-        page.click_on_element(element.ADD_TO_BASKET_BUTTON)
-        page.solve_quiz()
+        page.click_on_element_with_alert(element.ADD_TO_BASKET_BUTTON, function=page.solve_quiz)
         page.product_added_message_should_contain_product_name()
         page.basket_cost_message_should_contain_product_price()
 
@@ -34,8 +33,7 @@ def test_guest_can_add_product_to_basket(driver, offer_number):
     page, element = ProductPage(driver), ProductPageElements()
     page.open(f"https://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer{offer_number}")
     page.should_be_product_page()
-    page.click_on_element(element.ADD_TO_BASKET_BUTTON)
-    page.solve_quiz()
+    page.click_on_element_with_alert(element.ADD_TO_BASKET_BUTTON, function=page.solve_quiz)
     page.product_added_message_should_contain_product_name()
     page.basket_cost_message_should_contain_product_price()
 
@@ -51,6 +49,7 @@ def test_guest_should_see_login_link_on_product_page(driver):
 def test_guest_cant_see_product_added_message(driver):
     page, element = ProductPage(driver), ProductPageElements()
     page.open()
+    page.scroll_to_element(element.REVIEWS)
     page.should_be_product_page()
     page.check_element(element.PRODUCT_ADDED_MESSAGE, is_present=False)
 

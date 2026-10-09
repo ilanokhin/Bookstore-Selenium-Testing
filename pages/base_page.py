@@ -2,7 +2,7 @@ import allure
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoAlertPresentException
-from typing import Any
+from typing import Any, Callable
 from base_element.element import Element
 from config import *
 
@@ -95,11 +95,11 @@ class BasePage:
         with allure.step(f"Нажать {keys_name} на элементе '{element_data[0]}'"):
             element.press(*keys)
 
-    def get_elements_attribute(self, element_data: tuple, attribute: str = "text", start_index: int = 0,
-                               end_index: int | None = None, forbid_screenshot: bool = False) -> list:
+    def get_elements_attribute_list(self, element_data: tuple, attribute: str = "text", start_index: int = 0,
+                                    end_index: int | None = None, forbid_screenshot: bool = False) -> list:
         element = self.check_element(element_data, forbid_screenshot=forbid_screenshot)
 
-        attribute_list = element.attribute_values(attribute)
+        attribute_list = element.get_attribute_list(attribute)
         finish_index = len(attribute_list) if end_index is None else end_index
         attribute_list = [value for i, value in enumerate(attribute_list) if start_index <= i < finish_index]
 
@@ -112,7 +112,7 @@ class BasePage:
         else:
             element = Element(self.driver, element_data[1])
 
-        return element.attribute(attribute)
+        return element.get_attribute(attribute)
 
     def get_element_text(self, element_data: tuple, autocheck: bool = True, forbid_screenshot: bool = False) -> str:
         return self.get_element_attribute(element_data, autocheck=autocheck, forbid_screenshot=forbid_screenshot)
@@ -158,7 +158,7 @@ class BasePage:
         else:
             element = Element(self.driver, element_data[1])
 
-        self.use_javascript("arguments[0].scrollIntoView(true);", element.get_selenium_element())
+        element.scroll_to()
 
     def scroll_by_distance(self, xdistance: int, ydistance: int) -> None:
         self.use_javascript(f"window.scrollBy({xdistance}, {ydistance});")
@@ -177,22 +177,30 @@ class BasePage:
             self.allure_txt(self.get_url(), "URL страницы")
             assert included_text in self.get_url(), f"Текущий URL не содержит '{included_text}'"
 
-    def get_alert_message(self) -> str:
-        try:
-            return self.driver.switch_to.alert.text
-        except NoAlertPresentException:
-            raise AssertionError("Алёрт отсутствует")
+    def click_on_element_with_alert(self, element_data: tuple, text_to_send: str = "", confirm: bool = True,
+                                    function: Callable = None, forbid_screenshot: bool = False) -> str:
+        element = self.check_element(element_data, forbid_screenshot=forbid_screenshot)
 
-    def send_to_alert(self, text: str) -> None:
-        try:
-            alert = self.driver.switch_to.alert
-            alert.send_keys(text)
-            alert.accept()
-        except NoAlertPresentException:
-            raise AssertionError("Алёрт отсутствует")
+        with allure.step(f"Кликнуть по элементу '{element_data[0]}'"):
+            element.click()
 
-    def accept_alert(self) -> None:
-        try:
-            self.driver.switch_to.alert.accept()
-        except NoAlertPresentException:
-            raise AssertionError("Алёрт отсутствует")
+            try:
+                alert = self.driver.switch_to.alert
+                message = alert.text
+
+                if function:
+                    text = function(message)
+                else:
+                    text = text_to_send
+
+                if confirm and text:
+                    alert.send_keys(text)
+                    alert.accept()
+                elif confirm and not text:
+                    alert.accept()
+                else:
+                    alert.dismiss()
+
+                return message
+            except NoAlertPresentException:
+                raise AssertionError("Алёрт отсутствует")

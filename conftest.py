@@ -20,6 +20,7 @@ def driver(request: pytest.FixtureRequest):
 
     options = FirefoxOptions() if browser == "firefox" else ChromeOptions()
     options.add_argument("--no-sandbox")
+    options.page_load_strategy = "eager"
 
     if browser != "firefox":
         options.add_argument("--disable-blink-features=AutomationControlled")
@@ -31,6 +32,7 @@ def driver(request: pytest.FixtureRequest):
 
     print(f"\nЗапускается браузер {browser_name}...")
     driver = webdriver.Firefox(options=options) if browser == "firefox" else webdriver.Chrome(options=options)
+    driver.set_window_size(1500, 1000)
     print("\nПроводятся тесты...")
 
     yield driver
