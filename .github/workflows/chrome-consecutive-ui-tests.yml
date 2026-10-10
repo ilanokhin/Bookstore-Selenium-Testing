@@ -5,6 +5,7 @@ on:
 
 jobs:
   ui-tests:
+    name: Последовательные автотесты на Chrome
     runs-on: ubuntu-latest
 
     steps:

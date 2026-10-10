@@ -1,0 +1,41 @@
+name: Параллельные автотесты на Chrome
+
+on:
+  workflow_dispatch:
+
+jobs:
+  ui-tests:
+    name: Параллельные автотесты на Chrome
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Проверка кода репозитория
+        uses: actions/checkout@v6
+
+      - name: Сборка Docker образа
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          load: true
+          tags: python-ui-testing:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Запуск UI тестов
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/docker/project python-ui-testing:latest \
+            /bin/sh -c "pytest --headless -n=auto --reruns=3 --reruns-delay=5"
+
+      - name: Создание Allure отчета
+        if: always()
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/docker/project python-ui-testing:latest \
+            /bin/sh -c "allure generate allure-data -c --single-file"
+
+      - name: Выгрузка Allure отчёта
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: allure-report
+          path: allure-report
