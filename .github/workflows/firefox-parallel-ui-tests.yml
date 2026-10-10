@@ -8,7 +8,6 @@ on:
 
 jobs:
   ui-tests:
-    name: Параллельные автотесты на Firefox
     runs-on: ubuntu-latest
 
     steps:

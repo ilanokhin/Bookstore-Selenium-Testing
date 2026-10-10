@@ -40,8 +40,4 @@ class ProductPage(BasePage):
         basket_cost_message = self.get_element_text(ProductPageElements.BASKET_TOTAL_COST_MESSAGE)
 
         with allure.step("Сообщение о стоимости корзины должно содержать цену товара"):
-            try:
-                assert product_price in basket_cost_message, "Сообщение о стоимости корзины не содержит цену товара"
-            except AssertionError as error:
-                self.allure_screenshot()
-                raise AssertionError(error)
+            assert product_price in basket_cost_message, "Сообщение о стоимости корзины не содержит цену товара"

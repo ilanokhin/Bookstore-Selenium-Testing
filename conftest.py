@@ -9,7 +9,7 @@ from config import *
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
-    parser.addoption("--firefox", action="store_true", default=False, help="Использовать браузер Mozilla Firefox")
+    parser.addoption("--browser", action="store", default="chrome", help="Используемый браузер: chrome*, firefox")
     parser.addoption("--headless", action="store_true", default=False, help="Запуск в фоновом режиме")
     parser.addoption("--disable-images", action="store_true", default=False, help="Отключить картинки")
     parser.addoption("--screenshot-every-time", action="store_true", default=False, help="Делать частые скриншоты")
@@ -18,37 +18,37 @@ def pytest_addoption(parser: pytest.Parser) -> None:
 
 @pytest.fixture
 def driver(request: pytest.FixtureRequest):
-    firefox = request.config.getoption("--firefox")
+    browser = request.config.getoption("--browser")
+    browser_name = "Mozilla Firefox" if browser == "firefox" else "Google Chrome"
+
     headless = request.config.getoption("--headless")
     images = not request.config.getoption("--disable-images")
     screenshots = request.config.getoption("--screenshot-every-time")
     wait = request.config.getoption("--wait-for-load")
 
-    browser_name = "Mozilla Firefox" if firefox else "Google Chrome"
-    options = FirefoxOptions() if firefox else ChromeOptions()
+    options = FirefoxOptions() if browser == "firefox" else ChromeOptions()
 
     if wait:
         options.page_load_strategy = "normal"
     else:
         options.page_load_strategy = "eager"
 
-    if not firefox:
+    if browser == "chrome":
         options.add_argument("--disable-blink-features=AutomationControlled")
 
-    if headless and not firefox:
+    if headless and browser == "chrome":
         options.add_argument("--headless=new")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--disable-gpu")
-    elif headless and firefox:
+    elif headless and browser == "firefox":
         options.add_argument("--headless")
-        options.add_argument("--disable-gpu")
 
     if not images:
         options.add_argument("--blink-settings=imagesEnabled=false")
 
     print(f"\nЗапускается браузер {browser_name}...")
-    driver = webdriver.Firefox(options=options) if firefox else webdriver.Chrome(options=options)
+    driver = webdriver.Firefox(options=options) if browser == "firefox" else webdriver.Chrome(options=options)
 
     if not headless:
         driver.set_window_size(1500, 1000)
