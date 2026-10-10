@@ -12,8 +12,8 @@ jobs:
       - name: Проверка кода репозитория
         uses: actions/checkout@v6
 
-      - name: Загрузка образа с Docker Hub
-        run: docker pull ilanokhin/python-ui-testing:latest
+      - name: Сборка Docker образа
+        run: docker build -t python-ui-testing:latest .
 
       - name: Запуск UI тестов
         run: |
