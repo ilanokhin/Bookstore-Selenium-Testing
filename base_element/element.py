@@ -113,3 +113,45 @@ class Element:
 
     def scroll_to(self) -> None:
         self.driver.execute_script("arguments[0].scrollIntoView();", self._elements[0])
+
+    def get_all_atributes(self) -> list[dict]:
+        if self.locator[1].startswith("/"):
+            script = f"""
+                    const attributes_list = [];
+                    const xpath_data = document.evaluate(`{self.locator[1]}`, document, null,
+                        XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+
+                    if (xpath_data.snapshotLength === 0) return null;
+
+                    for (let i = 0; i < xpath_data.snapshotLength; i++) {{
+                        const attributes = new Object();
+                        let element = xpath_data.snapshotItem(i);
+                        attributes["text"] = element.innerText;
+
+                        for (let attribute of element.attributes) attributes[attribute.name] = attribute.value;
+
+                        attributes_list.push(attributes);
+                    }}
+
+                    return attributes_list;
+                """
+        else:
+            script = f"""
+                    const attributes_list = [];
+                    const elements = document.querySelectorAll(`{self.locator[1]}`);
+
+                    if (elements.length === 0) return null;
+
+                    for (element of elements) {{
+                        const attributes = new Object();
+                        attributes["text"] = element.innerText;
+
+                        for (let attribute of element.attributes) attributes[attribute.name] = attribute.value;
+
+                        attributes_list.push(attributes);
+                    }}
+
+                    return attributes_list;
+                    """
+
+        return self.driver.execute_script(script)
