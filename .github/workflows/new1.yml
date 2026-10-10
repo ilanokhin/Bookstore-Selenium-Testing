@@ -1,5 +1,4 @@
-name: Параллельные автотесты на Chrome
-
+name: Тест CI/CD
 on:
   workflow_dispatch:
 
@@ -13,14 +12,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Сборка Docker образа
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: false
-          load: true
-          tags: python-ui-testing:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+        run: docker build -t python-ui-testing:latest .
 
       - name: Запуск UI тестов
         run: |
