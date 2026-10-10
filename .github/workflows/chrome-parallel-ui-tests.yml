@@ -18,6 +18,12 @@ jobs:
       - name: Сборка Docker образа
         run: docker build -t python-ui-testing:latest .
 
+      - name: Загрузка образа с Docker Hub (если сборка не удалась)
+        if: failure()
+        run: |
+          docker pull ilanokhin/python-ui-testing:latest
+          docker tag ilanokhin/python-ui-testing:latest python-ui-testing:latest
+
       - name: Запуск UI тестов
         run: |
           docker run --rm -v ${{ github.workspace }}:/docker/project python-ui-testing:latest \
