@@ -8,3 +8,4 @@ class ProductPageElements(BasePageElements):
     PRODUCT_PRICE = ("Цена товара", locator("div.product_main p.price_color"))
     PRODUCT_ADDED_MESSAGE = ("Сообщение, что товар добавлен", locator(".alert:nth-child(1) strong"))
     BASKET_TOTAL_COST_MESSAGE = ("Сообщение об общей стоимости корзины", locator(".alert:nth-child(3) strong"))
+    REVIEWS = ("Отзывы клиентов", locator("#reviews"))

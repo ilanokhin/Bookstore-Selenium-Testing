@@ -5,12 +5,15 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from tests.test_login_page import TestLoginPage
+from config import *
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption("--browser", action="store", default="chrome", help="Используемый браузер: chrome*, firefox")
-    parser.addoption("--headless", action="store", default="false", help="Запуск в фоновом режиме: true, false*")
-    parser.addoption("--images", action="store", default="true", help="Включение/отключение картинок: true*, false")
+    parser.addoption("--headless", action="store_true", default=False, help="Запуск в фоновом режиме")
+    parser.addoption("--disable-images", action="store_true", default=False, help="Отключить картинки")
+    parser.addoption("--screenshot-every-time", action="store_true", default=False, help="Делать частые скриншоты")
+    parser.addoption("--wait-for-load", action="store_true", default=False, help="Дожидаться загрузки ресурсов")
 
 
 @pytest.fixture
@@ -18,19 +21,43 @@ def driver(request: pytest.FixtureRequest):
     browser = request.config.getoption("--browser")
     browser_name = "Mozilla Firefox" if browser == "firefox" else "Google Chrome"
 
-    options = FirefoxOptions() if browser == "firefox" else ChromeOptions()
-    options.add_argument("--no-sandbox")
+    headless = request.config.getoption("--headless")
+    images = not request.config.getoption("--disable-images")
+    screenshots = request.config.getoption("--screenshot-every-time")
+    wait = request.config.getoption("--wait-for-load")
 
-    if browser != "firefox":
+    options = FirefoxOptions() if browser == "firefox" else ChromeOptions()
+
+    if wait:
+        options.page_load_strategy = "normal"
+    else:
+        options.page_load_strategy = "eager"
+
+    if browser == "chrome":
         options.add_argument("--disable-blink-features=AutomationControlled")
 
-    if request.config.getoption("--headless") == "true":
+    if headless and browser == "chrome":
+        options.add_argument("--headless=new")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-gpu")
+    elif headless and browser == "firefox":
         options.add_argument("--headless")
-    if request.config.getoption("--images") == "false":
+
+    if not images:
         options.add_argument("--blink-settings=imagesEnabled=false")
 
     print(f"\nЗапускается браузер {browser_name}...")
     driver = webdriver.Firefox(options=options) if browser == "firefox" else webdriver.Chrome(options=options)
+
+    if not headless:
+        driver.set_window_size(1500, 1000)
+
+    if screenshots:
+        driver.config = {"screenshot_every_time": True}
+    else:
+        driver.config = {"screenshot_every_time": SCREENSHOT_EVERY_TIME}
+
     print("\nПроводятся тесты...")
 
     yield driver
