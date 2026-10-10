@@ -105,8 +105,7 @@ class Element:
 
     def is_attribute_changed(self, attribute: str, old_value: str) -> bool:
         try:
-            self._wait.until(ec.none_of(
-                ec.text_to_be_present_in_element_attribute(self.locator, attribute, old_value)))
+            self._wait.until_not(ec.text_to_be_present_in_element_attribute(self.locator, attribute, old_value))
         except TimeoutException:
             return False
 

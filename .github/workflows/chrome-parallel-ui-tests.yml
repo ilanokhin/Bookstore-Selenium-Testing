@@ -8,6 +8,7 @@ on:
 
 jobs:
   ui-tests:
+    name: Параллельные автотесты на Chrome
     runs-on: ubuntu-latest
 
     steps:
