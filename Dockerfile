@@ -2,7 +2,7 @@ FROM python:3.14-alpine
 WORKDIR /docker/project
 COPY requirements.txt .
 
-RUN apk update
+RUN apk update \
   && apk add --no-cache chromium-chromedriver firefox openjdk11-jre curl  \
   && curl -o allure.zip -L "https://github.com/allure-framework/allure2/releases/download/2.38.1/allure-2.38.1.zip" \
   && unzip allure.zip -d /opt/allure \
