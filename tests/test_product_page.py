@@ -20,18 +20,17 @@ class TestUserAddToBasketFromProductPage:
     @allure.title("Пользователь может добавить товар в корзину")
     def test_user_can_add_product_to_basket(self, driver, new_user_registration):
         page, element = ProductPage(driver), ProductPageElements()
-        page.open("https://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer1")
+        page.open("https://selenium1py.pythonanywhere.com/ru/catalogue/coders-at-work_207/?promo=offer1")
         page.should_be_product_page()
         page.click_on_element_with_alert(element.ADD_TO_BASKET_BUTTON, function=page.solve_quiz)
         page.product_added_message_should_contain_product_name()
         page.basket_cost_message_should_contain_product_price()
 
-
 @pytest.mark.parametrize("offer_number", (1, pytest.param(2, marks=pytest.mark.xfail), 3))
 @allure.title("Гость может добавить товар в корзину")
 def test_guest_can_add_product_to_basket(driver, offer_number):
     page, element = ProductPage(driver), ProductPageElements()
-    page.open(f"https://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer{offer_number}")
+    page.open(f"https://selenium1py.pythonanywhere.com/ru/catalogue/coders-at-work_207/?promo=offer{offer_number}")
     page.should_be_product_page()
     page.click_on_element_with_alert(element.ADD_TO_BASKET_BUTTON, function=page.solve_quiz)
     page.product_added_message_should_contain_product_name()

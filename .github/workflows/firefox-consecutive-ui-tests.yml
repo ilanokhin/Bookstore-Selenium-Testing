@@ -1,10 +1,7 @@
-name: Запуск автотестов
+name: Последовательные автотесты на Firefox
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches:
-      - master
 
 jobs:
   ui-tests:
@@ -20,7 +17,7 @@ jobs:
       - name: Запуск UI тестов
         run: |
           docker run --rm -v ${{ github.workspace }}:/docker/project ilanokhin/python-ui-testing:latest \
-            /bin/sh -c "pytest --headless=true -n=auto --reruns=3 --reruns-delay=5"
+            /bin/sh -c "pytest --headless --browser=firefox --screenshot-every-time --reruns=3 --reruns-delay=5"
 
       - name: Создание Allure отчета
         if: always()

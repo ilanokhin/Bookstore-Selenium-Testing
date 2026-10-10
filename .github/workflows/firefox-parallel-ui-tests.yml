@@ -1,0 +1,36 @@
+name: Параллельные автотесты на Firefox
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  ui-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Проверка кода репозитория
+        uses: actions/checkout@v6
+
+      - name: Загрузка образа с Docker Hub
+        run: docker pull ilanokhin/python-ui-testing:latest
+
+      - name: Запуск UI тестов
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/docker/project ilanokhin/python-ui-testing:latest \
+            /bin/sh -c "pytest --headless --browser=firefox --screenshot-every-time -n=auto --reruns=3 --reruns-delay=5"
+
+      - name: Создание Allure отчета
+        if: always()
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/docker/project ilanokhin/python-ui-testing:latest \
+            /bin/sh -c "allure generate allure-data -c --single-file"
+
+      - name: Выгрузка Allure отчёта
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: allure-report
+          path: allure-report

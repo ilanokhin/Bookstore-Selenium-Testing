@@ -1,4 +1,5 @@
 import allure
+import time
 from pages.login_page import LoginPage
 from elements.login_page_elements import LoginPageElements
 
@@ -9,7 +10,7 @@ class TestLoginPage:
     def test_new_user_registration(self, driver, fake):
         page, element = LoginPage(driver), LoginPageElements()
         page.open()
-        page.type_in_element(element.REGISTRATION_EMAIL, fake.email())
+        page.type_in_element(element.REGISTRATION_EMAIL, "user" + str(time.time()) + "@example.com")
         page.type_in_element(element.REGISTRATION_PASSWORD_1, "parol12345")
         page.type_in_element(element.REGISTRATION_PASSWORD_2, "parol12345")
         page.click_on_element(element.REGISTRATION_BUTTON)

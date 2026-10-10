@@ -1,4 +1,5 @@
 import re
+import time
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.keys import Keys
@@ -19,28 +20,34 @@ class Element:
         self._size = len(self._elements)
 
     @staticmethod
-    def wait_for_elements(locator: tuple[str, str], wait: WaitUntil):
-        def _predicate(driver: WebDriver):
+    def find_elements(driver: WebDriver, locator: tuple[str, str], timeout: float, wait: WaitUntil) -> list:
+        start_time = time.time()
+
+        while time.time() - start_time < timeout:
             elements = driver.find_elements(*locator)
 
-            if wait == WaitUntil.VISIBLE:
-                elements = [element for element in elements if element.is_displayed()]
+            if not elements:
+                time.sleep(0.1)
+                continue
+
+            if wait == WaitUntil.PRESENT:
+                return elements
+
+            elif wait == WaitUntil.VISIBLE:
+                visible = [element for element in elements if element.is_displayed()]
+
+                if visible:
+                    return visible
+
             elif wait == WaitUntil.CLICKABLE:
-                elements = [element for element in elements if element.is_enabled() and element.is_displayed()]
+                clickable = [element for element in elements if element.is_displayed() and element.is_enabled()]
 
-            return elements if elements else False
+                if clickable:
+                    return clickable
 
-        return _predicate
+            time.sleep(0.1)
 
-    @staticmethod
-    def find_elements(driver: WebDriver, locator: tuple[str, str], timeout: float, wait: WaitUntil) -> list:
-        waiting = WebDriverWait(driver, timeout)
-
-        try:
-            elements = waiting.until(Element.wait_for_elements(locator, wait))
-            return elements
-        except TimeoutException:
-            return []
+        return []
 
     def __repr__(self) -> str:
         return f"\nЭлемент(локатор: '{self.locator[1]}', количество: {self._size})"

@@ -11,6 +11,8 @@ class BasePage:
     def __init__(self, driver: WebDriver, url: str = BASE_URL):
         self.driver = driver
         self.url = url
+        self.config = self.driver.__dict__.get("config", {})
+        self.screenshot_every_time = self.config.get("screenshot_every_time", SCREENSHOT_EVERY_TIME)
 
     def open(self, url: str = "", page_name: str = "") -> None:
         if url:
@@ -69,12 +71,12 @@ class BasePage:
         allure_step += f" элемента '{element_data[0]}'"
 
         with allure.step(allure_step):
-            self.allure_screenshot(SCREENSHOT_MODE == ScreenshotOptions.EVERY_TIME and not forbid_screenshot)
+            self.allure_screenshot(self.screenshot_every_time and not forbid_screenshot)
 
             try:
                 assert result, assert_error
             except AssertionError as error:
-                self.allure_screenshot(SCREENSHOT_MODE == ScreenshotOptions.ON_ERROR and not forbid_screenshot)
+                self.allure_screenshot(not self.screenshot_every_time and not forbid_screenshot)
                 raise AssertionError(error)
 
         return element
@@ -130,12 +132,12 @@ class BasePage:
             second_name = element2_data[0]
 
         with allure.step(f"Проверить соответствие элементов '{element1_data[0]}' и '{second_name}'"):
-            self.allure_screenshot(SCREENSHOT_MODE == ScreenshotOptions.EVERY_TIME and not forbid_screenshot)
+            self.allure_screenshot(self.screenshot_every_time and not forbid_screenshot)
 
             try:
                 assert element1 == element2, f"Элементы '{element1_data[0]}' и '{second_name}' не соответствуют"
             except AssertionError as error:
-                self.allure_screenshot(SCREENSHOT_MODE == ScreenshotOptions.ON_ERROR and not forbid_screenshot)
+                self.allure_screenshot(not self.screenshot_every_time and not forbid_screenshot)
                 raise AssertionError(error)
 
     def should_be_element_changed(self, element_data: tuple, old_attribute_value: str, attribute: str = "text",
@@ -144,12 +146,12 @@ class BasePage:
         result = element.is_attribute_changed(attribute, old_attribute_value)
 
         with allure.step(f"Проверить, что элемент '{element_data[0]}' изменился"):
-            self.allure_screenshot(SCREENSHOT_MODE == ScreenshotOptions.EVERY_TIME and not forbid_screenshot)
+            self.allure_screenshot(self.screenshot_every_time and not forbid_screenshot)
 
             try:
                 assert result, f"Элемент '{element_data[0]}' не изменился"
             except AssertionError as error:
-                self.allure_screenshot(SCREENSHOT_MODE == ScreenshotOptions.ON_ERROR and not forbid_screenshot)
+                self.allure_screenshot(not self.screenshot_every_time and not forbid_screenshot)
                 raise AssertionError(error)
 
     def scroll_to_element(self, element_data: tuple, autocheck: bool = False, forbid_screenshot: bool = False) -> None:
