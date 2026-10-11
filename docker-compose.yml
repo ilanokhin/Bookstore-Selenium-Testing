@@ -1,6 +1,6 @@
 services:
   ui-tests:
-    image: python-selenium-testing2:latest
+    image: python-ui-testing:latest
     build: .
     volumes:
       - .:/docker/project
