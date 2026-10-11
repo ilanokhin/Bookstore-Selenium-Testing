@@ -1,7 +1,8 @@
 services:
   ui-tests:
-    image: python-ui-testing:latest
+    image: python-selenium-testing2:latest
     build: .
     volumes:
       - .:/docker/project
-    command: /bin/sh -c "chromedriver --version; geckodriver --version; pytest --headless || true; allure generate allure-data -c --single-file"
+    command: /bin/sh -c "chromedriver --version; geckodriver --version; pytest --headless || true; \
+      allure generate allure-data -c --single-file"
