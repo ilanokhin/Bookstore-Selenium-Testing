@@ -2,7 +2,7 @@ FROM python:3.14-slim
 WORKDIR /docker/project
 COPY requirements.txt .
 
-RUN apt-get update && apt-get install -y firefox-esr openjdk-21-jre-headless wget unzip
+RUN apt-get update && apt-get install -y firefox-esr openjdk-21-jre-headless wget curl unzip
 
 RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
     && apt-get install -y ./google-chrome-stable_current_amd64.deb && rm google-chrome-stable_current_amd64.deb
