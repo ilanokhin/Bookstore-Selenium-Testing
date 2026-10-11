@@ -1,120 +1,114 @@
 import re
 import time
 from selenium.webdriver.chrome.webdriver import WebDriver
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import *
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
+from typing import Any, Callable
 from enums.wait_until import WaitUntil
 from config import *
 
 
 class Element:
     def __init__(self, driver: WebDriver, locator: tuple[str, str], timeout: float = TIMEOUT,
-                 wait: WaitUntil = WaitUntil.PRESENT):
+                 waiting: WaitUntil = WaitUntil.PRESENT):
         self.driver = driver
         self.locator = locator
+        self.timeout = timeout
+        self.waiting = waiting
         self._wait = WebDriverWait(self.driver, timeout)
-        self._elements = Element.find_elements(driver, locator, timeout, wait)
-        self._size = len(self._elements)
 
-    @staticmethod
-    def find_elements(driver: WebDriver, locator: tuple[str, str], timeout: float, wait: WaitUntil) -> list:
+    def __repr__(self) -> str:
+        return f"\nЭлемент(локатор: '{self.locator[1]}', таймаут ожидания: {self.timeout} секунд)"
+
+    def get_element(self) -> WebElement | None:
         start_time = time.time()
 
-        while time.time() - start_time < timeout:
-            elements = driver.find_elements(*locator)
+        while time.time() - start_time < self.timeout:
+            try:
+                element = self.driver.find_element(*self.locator)
+            except NoSuchElementException:
+                element = None
+
+            if not element:
+                time.sleep(0.1)
+                continue
+
+            if self.waiting == WaitUntil.PRESENT:
+                return element
+            elif self.waiting == WaitUntil.VISIBLE:
+                if element.is_displayed():
+                    return element
+            elif self.waiting == WaitUntil.CLICKABLE:
+                if element.is_displayed() and element.is_enabled():
+                    return element
+
+            time.sleep(0.1)
+
+        return None
+
+    def get_elements(self) -> list[WebElement]:
+        start_time = time.time()
+
+        while time.time() - start_time < self.timeout:
+            elements = self.driver.find_elements(*self.locator)
 
             if not elements:
                 time.sleep(0.1)
                 continue
 
-            if wait == WaitUntil.PRESENT:
+            if self.waiting == WaitUntil.PRESENT:
                 return elements
-
-            elif wait == WaitUntil.VISIBLE:
-                visible = [element for element in elements if element.is_displayed()]
-
-                if visible:
-                    return visible
-
-            elif wait == WaitUntil.CLICKABLE:
-                clickable = [element for element in elements if element.is_displayed() and element.is_enabled()]
-
-                if clickable:
-                    return clickable
+            elif self.waiting == WaitUntil.VISIBLE:
+                if all(element.is_displayed() for element in elements):
+                    return elements
+            elif self.waiting == WaitUntil.CLICKABLE:
+                if all(element.is_displayed() and element.is_enabled() for element in elements):
+                    return elements
 
             time.sleep(0.1)
 
         return []
 
-    def __repr__(self) -> str:
-        return f"\nЭлемент(локатор: '{self.locator[1]}', количество: {self._size})"
+    def _stale_handler(self, function: Callable) -> Any:
+        start_time = time.time()
 
-    def __len__(self) -> int:
-        return self._size
+        while time.time() - start_time < self.timeout:
+            try:
+                return function()
+            except (StaleElementReferenceException, WebDriverException):
+                time.sleep(0.1)
 
-    def get_selenium_element(self, element_index: int = 0) -> WebElement:
-        return self._elements[element_index]
+        return None
 
     def is_present(self) -> bool:
-        return bool(self._elements)
+        res = self._stale_handler(lambda: bool(self.get_element()))
+        return res or False
 
     def is_clickable(self) -> bool:
-        return self.is_present() and self._elements[0].is_enabled()
+        res = self._stale_handler(lambda: self.is_present() and self.get_element().is_enabled())
+        return res or False
 
     def is_not_clickable(self) -> bool:
-        return self.is_present() and not self._elements[0].is_enabled()
+        res = self._stale_handler(lambda: self.is_present() and not self.get_element().is_enabled())
+        return res or False
 
     def is_not_present(self) -> bool:
-        return not self._elements
+        res = self._stale_handler(lambda: bool(self.get_element()))
+        return not bool(res)
 
     def type_text(self, text: str) -> None:
-        self._elements[0].send_keys(text)
+        self._stale_handler(lambda: self.get_element().send_keys(text))
 
     def click(self) -> None:
-        self._elements[0].click()
+        self._stale_handler(lambda: self.get_element().click())
 
     def press(self, *keys_to_press: str | Keys) -> None:
-        self._elements[0].send_keys(*keys_to_press)
+        self._stale_handler(lambda: self.get_element().send_keys(*keys_to_press))
 
-    def get_attribute(self, attribute: str = "text") -> str:
-        if attribute == "text":
-            attribute_value = self._elements[0].text
-        else:
-            attribute_value = self._elements[0].get_attribute(attribute)
-            attribute_value = attribute_value if attribute_value else ""
-            attribute_value = re.sub("<.*?>", "", attribute_value)
-
-        return attribute_value
-
-    def get_attribute_list(self, attribute: str = "text") -> list:
-        if attribute == "text":
-            attribute_values = [element.text for element in self._elements]
-        else:
-            attribute_values = []
-
-            for element in self._elements:
-                attribute_value = element.get_attribute(attribute)
-                attribute_value = attribute_value if attribute_value else ""
-                attribute_value = re.sub("<.*?>", "", attribute_value)
-                attribute_values.append(attribute_value)
-
-        return attribute_values
-
-    def is_attribute_changed(self, attribute: str, old_value: str) -> bool:
-        try:
-            self._wait.until_not(ec.text_to_be_present_in_element_attribute(self.locator, attribute, old_value))
-        except TimeoutException:
-            return False
-
-        return True
-
-    def scroll_to(self) -> None:
-        self.driver.execute_script("arguments[0].scrollIntoView();", self._elements[0])
-
-    def get_all_atributes(self) -> list[dict]:
+    def get_all_attributes(self) -> list[dict]:
         if self.locator[1].startswith("/"):
             script = f"""
                     const attributes_list = [];
@@ -155,3 +149,88 @@ class Element:
                     """
 
         return self.driver.execute_script(script)
+
+    def get_attribute(self, attribute: str = "text") -> str:
+        start_time = time.time()
+
+        while time.time() - start_time < self.timeout:
+            try:
+                if attribute == "text":
+                    attribute_value = self.get_element().text
+                else:
+                    attribute_value = self.get_element().get_attribute(attribute)
+                    attribute_value = attribute_value if attribute_value else ""
+                    attribute_value = re.sub("<.*?>", "", attribute_value)
+
+                return attribute_value
+
+            except (StaleElementReferenceException, WebDriverException):
+                time.sleep(0.1)
+
+        return ""
+
+    def get_attribute_via_js(self, attribute: str = "text") -> str:
+        attributes_list = self.get_all_attributes()
+
+        if attributes_list and attribute == "text":
+            attribute_value = attributes_list[0].get("text", "")
+        elif attribute != "text":
+            attribute_value = attributes_list[0].get(attribute, "")
+            attribute_value = re.sub("<.*?>", "", attribute_value)
+        else:
+            attribute_value = ""
+
+        return attribute_value
+
+    def get_attribute_list(self, attribute: str = "text") -> list:
+        start_time = time.time()
+
+        while time.time() - start_time < self.timeout:
+            try:
+                attribute_list = []
+                elements = self.get_elements()
+
+                for element in elements:
+                    if attribute == "text":
+                        attribute_value = element.text
+                    else:
+                        attribute_value = element.get_attribute(attribute)
+                        attribute_value = attribute_value if attribute_value else ""
+                        attribute_value = re.sub("<.*?>", "", attribute_value)
+
+                    attribute_list.append(attribute_value)
+
+                return attribute_list
+
+            except (StaleElementReferenceException, WebDriverException):
+                time.sleep(0.1)
+
+        return []
+
+    def get_attribute_list_via_js(self, attribute: str = "text") -> list:
+        attributes_list = self.get_all_attributes()
+
+        if attributes_list and attribute == "text":
+            attribute_values = [element.get("text", "") for element in attributes_list]
+        elif attribute != "text":
+            attribute_values = []
+
+            for element in attributes_list:
+                attribute_value = element.get(attribute, "")
+                attribute_value = re.sub("<.*?>", "", attribute_value)
+                attribute_values.append(attribute_value)
+        else:
+            attribute_values = []
+
+        return attribute_values
+
+    def is_attribute_changed(self, attribute: str, old_value: str) -> bool:
+        try:
+            self._wait.until_not(ec.text_to_be_present_in_element_attribute(self.locator, attribute, old_value))
+        except TimeoutException:
+            return False
+
+        return True
+
+    def scroll_to(self) -> None:
+        self._stale_handler(lambda: self.driver.execute_script("arguments[0].scrollIntoView();", self.get_element()))

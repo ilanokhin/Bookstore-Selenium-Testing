@@ -22,10 +22,15 @@ jobs:
           docker pull ilanokhin/python-ui-testing:latest
           docker tag ilanokhin/python-ui-testing:latest python-ui-testing:latest
 
+      - name: Проверка версий драйверов
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/docker/project python-ui-testing:latest \
+            /bin/sh -c "chromedriver --version; geckodriver --version"
+
       - name: Запуск UI тестов
         run: |
           docker run --rm -v ${{ github.workspace }}:/docker/project python-ui-testing:latest \
-            /bin/sh -c "pytest --headless --reruns=3 --reruns-delay=5"
+            /bin/sh -c "pytest --headless"
 
       - name: Создание Allure отчета
         if: always()
