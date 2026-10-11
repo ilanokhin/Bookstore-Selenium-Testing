@@ -28,7 +28,7 @@ jobs:
       - name: Запуск UI тестов
         run: |
           docker run --rm -v ${{ github.workspace }}:/docker/project python-ui-testing:latest \
-            /bin/sh -c "pytest --headless --firefox --screenshot-every-time -n=auto --reruns=3 --reruns-delay=5"
+            /bin/sh -c "pytest --headless --firefox -n=auto --reruns=3 --reruns-delay=5"
 
       - name: Создание Allure отчета
         if: always()
