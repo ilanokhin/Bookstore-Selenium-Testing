@@ -1,16 +1,8 @@
-FROM python:3.14-slim
+FROM python:3.14-alpine
 WORKDIR /docker/project
 COPY requirements.txt .
 
-RUN apt-get update && apt-get install -y firefox-esr openjdk-21-jre-headless wget curl unzip
-
-RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
-    && apt-get install -y ./google-chrome-stable_current_amd64.deb && rm google-chrome-stable_current_amd64.deb
-
-RUN VER=$(google-chrome --version | grep -oP '[\d\.]+') \
-    && wget https://storage.googleapis.com/chrome-for-testing-public/$VER/linux64/chromedriver-linux64.zip \
-    && unzip chromedriver-linux64.zip && rm chromedriver-linux64.zip \
-    && mv chromedriver-linux64/chromedriver /usr/bin/chromedriver && chmod +x /usr/bin/chromedriver
+RUN apk add --no-cache chromium-chromedriver firefox openjdk11-jre wget
 
 RUN VER=0.37.1 \
     && wget https://github.com/mozilla/geckodriver/releases/download/v$VER/geckodriver-v$VER-linux64.tar.gz \
