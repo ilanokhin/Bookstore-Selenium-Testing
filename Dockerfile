@@ -12,7 +12,7 @@ RUN VER=$(google-chrome --version | grep -oP '[\d\.]+') \
     && unzip chromedriver-linux64.zip && rm chromedriver-linux64.zip \
     && mv chromedriver-linux64/chromedriver /usr/bin/chromedriver && chmod +x /usr/bin/chromedriver
 
-RUN VER=$(curl -s https://api.github.com/repos/mozilla/geckodriver/releases/latest | grep tag_ | grep -oP '[\d\.]+') \
+RUN VER=0.37.1 \
     && wget https://github.com/mozilla/geckodriver/releases/download/v$VER/geckodriver-v$VER-linux64.tar.gz \
     && tar -xzf geckodriver-v$VER-linux64.tar.gz && rm geckodriver-v$VER-linux64.tar.gz \
     && mv geckodriver /usr/bin/geckodriver && chmod +x /usr/bin/geckodriver
