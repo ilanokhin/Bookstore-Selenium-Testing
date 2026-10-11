@@ -25,7 +25,7 @@ jobs:
       - name: Проверка версий драйверов
         run: |
           docker run --rm -v ${{ github.workspace }}:/docker/project python-ui-testing:latest \
-            /bin/sh -c "chromedriver --version; geckodriver --version"
+            /bin/sh -c "chromedriver --version; geckodriver --version | head -1"
 
       - name: Запуск UI тестов
         run: |
