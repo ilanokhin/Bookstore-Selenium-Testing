@@ -5,7 +5,6 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from tests.test_login_page import TestLoginPage
-from config import *
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
@@ -55,7 +54,7 @@ def driver(request: pytest.FixtureRequest):
     if screenshots:
         driver.config = {"screenshot_every_time": True}
     else:
-        driver.config = {"screenshot_every_time": SCREENSHOT_EVERY_TIME}
+        driver.config = {"screenshot_every_time": False}
 
     print("\nПроводятся тесты...")
 
