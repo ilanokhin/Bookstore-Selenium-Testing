@@ -12,7 +12,7 @@ class BasePage:
         self.driver = driver
         self.url = url
         self.config = self.driver.__dict__.get("config", {})
-        self.screenshot_every_time = self.config.get("screenshot_every_time", SCREENSHOT_EVERY_TIME)
+        self.screenshot_every_time = self.config.get("screenshot_every_time", False)
 
     def open(self, url: str = "", page_name: str = "") -> None:
         if url:
