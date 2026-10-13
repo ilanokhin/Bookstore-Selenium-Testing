@@ -2,7 +2,7 @@ FROM python:3.14-alpine
 WORKDIR /docker/project
 COPY requirements.txt .
 
-RUN apk add --no-cache chromium-chromedriver firefox openjdk11-jre wget
+RUN apk add --no-cache firefox openjdk11-jre-headless wget
 
 RUN VER=0.37.1 \
     && wget -T 10 https://github.com/mozilla/geckodriver/releases/download/v$VER/geckodriver-v$VER-linux64.tar.gz \
