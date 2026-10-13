@@ -15,12 +15,12 @@ jobs:
       - name: Проверка кода репозитория
         uses: actions/checkout@v6
 
-#      - name: Сборка Docker образа
-#        run: docker build -t python-selenium-firefox-testing:latest -f ./Dockerfile_for_firefox .
-#        continue-on-error: true
+      - name: Сборка Docker образа
+        run: docker build -t python-selenium-firefox-testing:latest -f ./Dockerfile_for_firefox .
+        continue-on-error: true
 
       - name: Загрузка образа с Docker Hub (если сборка не удалась)
-        #if: failure()
+        if: failure()
         run: |
           docker pull ilanokhin/python-selenium-firefox-testing:latest
           docker tag ilanokhin/python-selenium-firefox-testing:latest python-selenium-firefox-testing:latest
