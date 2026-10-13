@@ -29,19 +29,11 @@ class ProductPage(BasePage):
         product_added_message = self.get_element_text(ProductPageElements.PRODUCT_ADDED_MESSAGE)
 
         with allure.step("Имя товара должно быть в сообщении о его добавлении"):
-            try:
-                assert product_name in product_added_message, "Имя товара отсутствует в сообщении о его добавлении"
-            except AssertionError as error:
-                self.allure_screenshot()
-                raise AssertionError(error)
+            assert product_name in product_added_message, "Имя товара отсутствует в сообщении о его добавлении"
 
     def basket_cost_message_should_contain_product_price(self):
         product_price = self.get_element_text(ProductPageElements.PRODUCT_PRICE)
         basket_cost_message = self.get_element_text(ProductPageElements.BASKET_TOTAL_COST_MESSAGE)
 
         with allure.step("Сообщение о стоимости корзины должно содержать цену товара"):
-            try:
-                assert product_price in basket_cost_message, "Сообщение о стоимости корзины не содержит цену товара"
-            except AssertionError as error:
-                self.allure_screenshot()
-                raise AssertionError(error)
+            assert product_price in basket_cost_message, "Сообщение о стоимости корзины не содержит цену товара"

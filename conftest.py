@@ -63,6 +63,19 @@ def driver(request: pytest.FixtureRequest):
     driver.quit()
 
 
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item):
+    outcome = yield
+    test = outcome.get_result()
+
+    if test.failed:
+        driver = item.funcargs.get("driver")
+
+        if driver:
+            screenshot = driver.get_screenshot_as_png()
+            allure.attach(screenshot, attachment_type=allure.attachment_type.PNG, name="Скриншот")
+
+
 @pytest.fixture
 def fake():
     return Faker()
