@@ -5,24 +5,31 @@ on:
 
 jobs:
   chrome-tests:
-    name: Последовательные автотесты на Chrome
+    name: Автотесты на Chrome
     runs-on: ubuntu-latest
 
     steps:
       - name: Проверка кода репозитория
         uses: actions/checkout@v6
 
-      - name: Сборка Docker образа
-        run: docker build -t python-selenium-chrome-testing:latest -f ./Dockerfile_for_chrome .
-        continue-on-error: true
+      - name: Восстановление образа из кэша
+        id: cache-restore
+        uses: actions/cache/restore@v6
+        with:
+          path: chrome.tar
+          key: python-selenium-chrome-testing
 
-      - name: Загрузка образа с Docker Hub (если сборка не удалась)
-        if: failure()
+      - name: Загрузка образа в Docker
+        if: steps.cache-restore.outputs.cache-hit == 'true'
+        run: docker load < chrome.tar
+
+      - name: Загрузка образа с Docker Hub
+        if: steps.cache-restore.outputs.cache-hit != 'true'
         run: |
           docker pull ilanokhin/python-selenium-chrome-testing:latest
           docker tag ilanokhin/python-selenium-chrome-testing:latest python-selenium-chrome-testing:latest
 
-      - name: Запуск UI тестов
+      - name: Запуск автотестов
         run: |
           docker run --rm -v ${{ github.workspace }}:/docker/project python-selenium-chrome-testing:latest \
             /bin/sh -c "pytest --headless"
