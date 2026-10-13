@@ -1,0 +1,35 @@
+name: Сборка и кэширование образов
+
+on:
+  workflow_dispatch:
+
+jobs:
+  tar-archives:
+    name: Создание TAR архивов
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Проверка кода репозитория
+        uses: actions/checkout@v6
+
+      - name: Загрузка образа Chrome с Docker Hub
+        run: |
+          docker pull ilanokhin/python-selenium-chrome-testing:latest
+          docker save ilanokhin/python-selenium-chrome-testing:latest > chrome.tar
+
+      - name: Сохранение загруженного образа Chrome в кэш
+        uses: actions/cache/save@v6
+        with:
+          path: chrome.tar
+          key: python-selenium-chrome-testing
+
+      - name: Загрузка образа Firefox с Docker Hub
+        run: |
+          docker pull ilanokhin/python-selenium-firefox-testing:latest
+          docker save ilanokhin/python-selenium-firefox-testing:latest > firefox.tar
+
+      - name: Сохранение загруженного образа Firefox в кэш
+        uses: actions/cache/save@v6
+        with:
+          path: firefox.tar
+          key: python-selenium-firefox-testing

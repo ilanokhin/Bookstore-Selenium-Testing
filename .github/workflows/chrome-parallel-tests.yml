@@ -8,24 +8,19 @@ on:
 
 jobs:
   chrome-tests:
-    name: Параллельные автотесты на Chrome
+    name: Автотесты на Chrome
     runs-on: ubuntu-latest
 
     steps:
       - name: Проверка кода репозитория
         uses: actions/checkout@v6
 
-      - name: Сборка Docker образа
-        run: docker build -t python-selenium-chrome-testing:latest -f ./Dockerfile_for_chrome .
-        continue-on-error: true
-
-      - name: Загрузка образа с Docker Hub (если сборка не удалась)
-        if: failure()
+      - name: Загрузка образа с Docker Hub
         run: |
           docker pull ilanokhin/python-selenium-chrome-testing:latest
           docker tag ilanokhin/python-selenium-chrome-testing:latest python-selenium-chrome-testing:latest
 
-      - name: Запуск UI тестов
+      - name: Запуск автотестов
         run: |
           docker run --rm -v ${{ github.workspace }}:/docker/project python-selenium-chrome-testing:latest \
             /bin/sh -c "pytest --headless -n=auto"
