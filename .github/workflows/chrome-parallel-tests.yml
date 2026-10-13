@@ -7,7 +7,7 @@ on:
       - master
 
 jobs:
-  ui-tests:
+  chrome-tests:
     name: Параллельные автотесты на Chrome
     runs-on: ubuntu-latest
 
@@ -15,30 +15,25 @@ jobs:
       - name: Проверка кода репозитория
         uses: actions/checkout@v6
 
-      - name: Сборка Docker образа
-        run: docker build -t python-ui-testing:latest .
-        continue-on-error: true
+#      - name: Сборка Docker образа
+#        run: docker build -t python-selenium-chrome-testing:latest -f ./Dockerfile_for_chrome .
+#        continue-on-error: true
 
       - name: Загрузка образа с Docker Hub (если сборка не удалась)
-        if: failure()
+        #if: failure()
         run: |
-          docker pull ilanokhin/python-ui-testing:latest
-          docker tag ilanokhin/python-ui-testing:latest python-ui-testing:latest
-
-      - name: Проверка версий драйверов
-        run: |
-          docker run --rm -v ${{ github.workspace }}:/docker/project python-ui-testing:latest \
-            /bin/sh -c "chromedriver --version; geckodriver --version | head -1"
+          docker pull ilanokhin/python-selenium-chrome-testing:latest
+          docker tag ilanokhin/python-selenium-chrome-testing:latest python-selenium-chrome-testing:latest
 
       - name: Запуск UI тестов
         run: |
-          docker run --rm -v ${{ github.workspace }}:/docker/project python-ui-testing:latest \
+          docker run --rm -v ${{ github.workspace }}:/docker/project python-selenium-chrome-testing:latest \
             /bin/sh -c "pytest --headless -n=auto"
 
       - name: Создание Allure отчета
         if: always()
         run: |
-          docker run --rm -v ${{ github.workspace }}:/docker/project python-ui-testing:latest \
+          docker run --rm -v ${{ github.workspace }}:/docker/project python-selenium-chrome-testing:latest \
             /bin/sh -c "allure generate allure-data -c --single-file"
 
       - name: Выгрузка Allure отчёта

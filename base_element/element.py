@@ -21,7 +21,7 @@ class Element:
         self._wait = WebDriverWait(self.driver, timeout)
 
     def __repr__(self) -> str:
-        return f"\nЭлемент(локатор: '{self.locator[1]}', таймаут ожидания: {self.timeout} секунд)"
+        return f"\nЭлемент(локатор: '{self.locator[1]}', таймаут ожидания: {self.timeout} сек)"
 
     def get_element(self) -> WebElement | None:
         start_time = time.time()
@@ -146,7 +146,7 @@ class Element:
                     }}
 
                     return attributes_list;
-                    """
+                """
 
         return self.driver.execute_script(script)
 
@@ -168,19 +168,6 @@ class Element:
                 time.sleep(0.1)
 
         return ""
-
-    def get_attribute_via_js(self, attribute: str = "text") -> str:
-        attributes_list = self.get_all_attributes()
-
-        if attributes_list and attribute == "text":
-            attribute_value = attributes_list[0].get("text", "")
-        elif attribute != "text":
-            attribute_value = attributes_list[0].get(attribute, "")
-            attribute_value = re.sub("<.*?>", "", attribute_value)
-        else:
-            attribute_value = ""
-
-        return attribute_value
 
     def get_attribute_list(self, attribute: str = "text") -> list:
         start_time = time.time()
@@ -206,23 +193,6 @@ class Element:
                 time.sleep(0.1)
 
         return []
-
-    def get_attribute_list_via_js(self, attribute: str = "text") -> list:
-        attributes_list = self.get_all_attributes()
-
-        if attributes_list and attribute == "text":
-            attribute_values = [element.get("text", "") for element in attributes_list]
-        elif attribute != "text":
-            attribute_values = []
-
-            for element in attributes_list:
-                attribute_value = element.get(attribute, "")
-                attribute_value = re.sub("<.*?>", "", attribute_value)
-                attribute_values.append(attribute_value)
-        else:
-            attribute_values = []
-
-        return attribute_values
 
     def is_attribute_changed(self, attribute: str, old_value: str) -> bool:
         try:

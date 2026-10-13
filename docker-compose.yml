@@ -1,8 +1,18 @@
 services:
-  ui-tests:
-    image: python-ui-testing:latest
-    build: .
+  chrome-selenium-tests:
+    image: python-selenium-chrome-testing:latest
+    build:
+      context: .
+      dockerfile: Dockerfile_for_chrome
     volumes:
       - .:/docker/project
-    command: /bin/sh -c "chromedriver --version; geckodriver --version; pytest --headless || true; \
-      allure generate allure-data -c --single-file"
+    command: /bin/sh -c "pytest --headless || true; allure generate allure-data -c --single-file"
+
+  firefox-selenium-tests:
+    image: python-selenium-firefox-testing:latest
+    build:
+      context: .
+      dockerfile: Dockerfile_for_firefox
+    volumes:
+      - .:/docker/project
+    command: /bin/sh -c "pytest --headless --firefox || true; allure generate allure-data -c --single-file"
