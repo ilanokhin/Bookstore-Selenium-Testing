@@ -4,4 +4,3 @@ allure-report/
 __pycache__/
 .idea/*
 !.idea/runConfigurations/
-!.idea/runConfigurations/**
