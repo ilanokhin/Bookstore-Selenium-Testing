@@ -2,5 +2,6 @@ allure-data/
 allure-report/
 */__pycache__/
 __pycache__/
-.idea/*
-!.idea/runConfigurations/
+.idea/inspectionProfiles/
+.idea/*.xml
+.idea/*.iml
