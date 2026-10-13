@@ -27,7 +27,7 @@ jobs:
           docker run --rm -v ${{ github.workspace }}:/docker/project python-selenium-chrome-testing:latest \
             /bin/sh -c "pytest --headless"
 
-      - name: Создание Allure отчета
+      - name: Создание Allure отчёта
         if: always()
         run: |
           docker run --rm -v ${{ github.workspace }}:/docker/project ilanokhin/python-selenium-chrome-testing:latest \
