@@ -19,11 +19,13 @@ jobs:
           path: chrome.tar
           key: python-selenium-chrome-testing
 
-      - name: Загрузка образа в Docker
+      - name: Загрузка образа в Docker (если есть в кэше)
         if: steps.cache-restore.outputs.cache-hit == 'true'
-        run: docker load < chrome.tar
+        run: |
+          docker load < chrome.tar
+          docker tag ilanokhin/python-selenium-chrome-testing:latest python-selenium-chrome-testing:latest
 
-      - name: Загрузка образа с Docker Hub
+      - name: Загрузка образа с Docker Hub (если нет в кэше)
         if: steps.cache-restore.outputs.cache-hit != 'true'
         run: |
           docker pull ilanokhin/python-selenium-chrome-testing:latest
