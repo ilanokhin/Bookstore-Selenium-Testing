@@ -27,7 +27,7 @@ jobs:
         id: docker-pull
         if: steps.cache-restore.outputs.cache-hit != 'true'
         run: |
-          docker pull ilanokhinx/python-selenium-chrome-testing:latest
+          docker pull ilanokhin/python-selenium-chrome-testing:latest
           docker tag ilanokhin/python-selenium-chrome-testing:latest python-selenium-chrome-testing:latest
         continue-on-error: true
 
