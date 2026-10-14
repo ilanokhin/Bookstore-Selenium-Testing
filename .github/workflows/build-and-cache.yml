@@ -12,30 +12,16 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Настройка Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Кэш слоёв Docker для Chrome
-        uses: actions/cache@v6
-        with:
-          path: /tmp/.buildx-cache-chrome
-          key: ${{ runner.os }}-buildx-chrome-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-chrome-
+        uses: docker/setup-buildx-action@v4
 
       - name: Сборка Chrome образа
         id: chrome-build
         continue-on-error: true
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile_for_chrome
           load: true
           tags: python-selenium-chrome-testing:latest
-          cache-from: type=local,src=/tmp/.buildx-cache-chrome
-          cache-to: type=local,dest=/tmp/.buildx-cache-chrome-new,mode=max
-
-      - name: Обновление кэша Chrome
-        if: always()
-        run: |
-          rm -rf /tmp/.buildx-cache-chrome
-          mv /tmp/.buildx-cache-chrome-new /tmp/.buildx-cache-chrome
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
