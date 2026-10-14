@@ -4,32 +4,38 @@ on:
   workflow_dispatch:
 
 jobs:
-  tar-archives:
-    name: Создание TAR архивов
+  build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Проверка кода репозитория
         uses: actions/checkout@v6
 
-      - name: Загрузка образа Chrome с Docker Hub
-        run: |
-          docker pull ilanokhin/python-selenium-chrome-testing:latest
-          docker save ilanokhin/python-selenium-chrome-testing:latest > chrome.tar
+      - name: Настройка Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Сохранение загруженного образа Chrome в кэш
-        uses: actions/cache/save@v6
+      - name: Кэш слоёв Docker для Chrome
+        uses: actions/cache@v6
         with:
-          path: chrome.tar
-          key: python-selenium-chrome-testing
+          path: /tmp/.buildx-cache-chrome
+          key: ${{ runner.os }}-buildx-chrome-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-chrome-
 
-      - name: Загрузка образа Firefox с Docker Hub
-        run: |
-          docker pull ilanokhin/python-selenium-firefox-testing:latest
-          docker save ilanokhin/python-selenium-firefox-testing:latest > firefox.tar
-
-      - name: Сохранение загруженного образа Firefox в кэш
-        uses: actions/cache/save@v6
+      - name: Сборка Chrome образа
+        id: chrome-build
+        continue-on-error: true
+        uses: docker/build-push-action@v5
         with:
-          path: firefox.tar
-          key: python-selenium-firefox-testing
+          context: .
+          file: ./Dockerfile_for_chrome
+          load: true
+          tags: python-selenium-chrome-testing:latest
+          cache-from: type=local,src=/tmp/.buildx-cache-chrome
+          cache-to: type=local,dest=/tmp/.buildx-cache-chrome-new,mode=max
+
+      - name: Обновление кэша Chrome
+        if: always()
+        run: |
+          rm -rf /tmp/.buildx-cache-chrome
+          mv /tmp/.buildx-cache-chrome-new /tmp/.buildx-cache-chrome
