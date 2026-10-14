@@ -43,7 +43,7 @@ jobs:
       - name: Создание Allure отчёта
         if: always()
         run: |
-          docker run --rm -v ${{ github.workspace }}:/docker/project ilanokhin/python-selenium-chrome-testing:latest \
+          docker run --rm -v ${{ github.workspace }}:/docker/project python-selenium-chrome-testing:latest \
             /bin/sh -c "allure generate allure-data -c --single-file"
 
       - name: Выгрузка Allure отчёта
