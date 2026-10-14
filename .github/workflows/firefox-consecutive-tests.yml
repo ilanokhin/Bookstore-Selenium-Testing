@@ -12,10 +12,28 @@ jobs:
       - name: Проверка кода репозитория
         uses: actions/checkout@v6
 
-      - name: Загрузка образа с Docker Hub
+      - name: Проверка кэша
+        id: cache-restore
+        uses: actions/cache/restore@v6
+        with:
+          path: firefox.tar
+          key: python-selenium-firefox-testing
+
+      - name: Загрузка образа в Docker (если был в кэше)
+        if: steps.cache-restore.outputs.cache-hit == 'true'
+        run: docker load -i firefox.tar
+
+      - name: Загрузка образа с Docker Hub (если не было в кэше)
+        id: docker-pull
+        if: steps.cache-restore.outputs.cache-hit != 'true'
         run: |
           docker pull ilanokhin/python-selenium-firefox-testing:latest
           docker tag ilanokhin/python-selenium-firefox-testing:latest python-selenium-firefox-testing:latest
+        continue-on-error: true
+
+      - name: Сборка Docker образа (если загрузка не удалась)
+        if: steps.docker-pull.outcome == 'failure'
+        run: docker build -t python-selenium-firefox-testing:latest -f ./Dockerfile_for_firefox .
 
       - name: Запуск автотестов
         run: |

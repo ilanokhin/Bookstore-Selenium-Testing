@@ -12,24 +12,28 @@ jobs:
       - name: Проверка кода репозитория
         uses: actions/checkout@v6
 
-      - name: Восстановление образа из кэша
+      - name: Проверка кэша
         id: cache-restore
         uses: actions/cache/restore@v6
         with:
           path: chrome.tar
           key: python-selenium-chrome-testing
 
-      - name: Загрузка образа в Docker (если есть в кэше)
+      - name: Загрузка образа в Docker (если был в кэше)
         if: steps.cache-restore.outputs.cache-hit == 'true'
-        run: |
-          docker load < chrome.tar
-          docker tag ilanokhin/python-selenium-chrome-testing:latest python-selenium-chrome-testing:latest
+        run: docker load -i chrome.tar
 
-      - name: Загрузка образа с Docker Hub (если нет в кэше)
+      - name: Загрузка образа с Docker Hub (если не было в кэше)
+        id: docker-pull
         if: steps.cache-restore.outputs.cache-hit != 'true'
         run: |
           docker pull ilanokhin/python-selenium-chrome-testing:latest
           docker tag ilanokhin/python-selenium-chrome-testing:latest python-selenium-chrome-testing:latest
+        continue-on-error: true
+
+      - name: Сборка Docker образа (если загрузка не удалась)
+        if: steps.docker-pull.outcome == 'failure'
+        run: docker build -t python-selenium-chrome-testing:latest -f ./Dockerfile_for_chrome .
 
       - name: Запуск автотестов
         run: |
@@ -39,7 +43,7 @@ jobs:
       - name: Создание Allure отчёта
         if: always()
         run: |
-          docker run --rm -v ${{ github.workspace }}:/docker/project ilanokhin/python-selenium-chrome-testing:latest \
+          docker run --rm -v ${{ github.workspace }}:/docker/project python-selenium-chrome-testing:latest \
             /bin/sh -c "allure generate allure-data -c --single-file"
 
       - name: Выгрузка Allure отчёта
