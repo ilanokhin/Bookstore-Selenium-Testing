@@ -10,26 +10,19 @@ jobs:
 
     steps:
       - name: Проверка кода репозитория
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
-      - name: Восстановление образа из кэша
-        id: cache-restore
-        uses: actions/cache/restore@v6
+      - name: Настройка Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Восстановление и сборка Chrome образа из кэша
+        uses: docker/build-push-action@v7
         with:
-          path: chrome.tar
-          key: python-selenium-chrome-testing
-
-      - name: Загрузка образа в Docker (если есть в кэше)
-        if: steps.cache-restore.outputs.cache-hit == 'true'
-        run: |
-          docker load < chrome.tar
-          docker tag ilanokhin/python-selenium-chrome-testing:latest python-selenium-chrome-testing:latest
-
-      - name: Загрузка образа с Docker Hub (если нет в кэше)
-        if: steps.cache-restore.outputs.cache-hit != 'true'
-        run: |
-          docker pull ilanokhin/python-selenium-chrome-testing:latest
-          docker tag ilanokhin/python-selenium-chrome-testing:latest python-selenium-chrome-testing:latest
+          context: .
+          file: ./Dockerfile_for_chrome
+          load: true
+          tags: python-selenium-chrome-testing:latest
+          cache-from: type=gha
 
       - name: Запуск автотестов
         run: |

@@ -9,7 +9,7 @@ jobs:
 
     steps:
       - name: Проверка кода репозитория
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Настройка Docker Buildx
         uses: docker/setup-buildx-action@v4
@@ -17,11 +17,11 @@ jobs:
       - name: Сборка Chrome образа
         id: chrome-build
         continue-on-error: true
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ./Dockerfile_for_chrome
           load: true
           tags: python-selenium-chrome-testing:latest
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha, mode=max
