@@ -12,7 +12,7 @@ jobs:
       - name: Проверка кода репозитория
         uses: actions/checkout@v6
 
-      - name: Восстановление образа из кэша
+      - name: Проверка кэша
         id: cache-restore
         uses: actions/cache/restore@v6
         with:
@@ -26,7 +26,7 @@ jobs:
       - name: Загрузка образа с Docker Hub (если не было в кэше)
         if: steps.cache-restore.outputs.cache-hit != 'true'
         run: |
-          docker pull ilanokhin/python-selenium-chrome-testing:latest
+          docker pull ilanokhinx/python-selenium-chrome-testing:latest
           docker tag ilanokhin/python-selenium-chrome-testing:latest python-selenium-chrome-testing:latest
         continue-on-error: true
 
