@@ -2,13 +2,10 @@ name: Параллельные автотесты на Chrome
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches:
-      - master
 
 jobs:
   chrome-tests:
-    name: Автотесты на Chrome
+    name: Параллельные автотесты на Chrome
     runs-on: ubuntu-latest
 
     steps:

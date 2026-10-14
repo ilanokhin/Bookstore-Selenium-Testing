@@ -2,10 +2,13 @@ name: Последовательные автотесты на Firefox
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - master
 
 jobs:
   firefox-tests:
-    name: Автотесты на Firefox
+    name: Последовательные автотесты на Firefox
     runs-on: ubuntu-latest
 
     steps:

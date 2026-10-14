@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  tar-archives:
-    name: Создание TAR архивов
+  build-and-cache:
+    name: Сборка и кэширование образов
     runs-on: ubuntu-latest
 
     steps:
