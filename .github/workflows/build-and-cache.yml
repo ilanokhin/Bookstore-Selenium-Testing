@@ -4,24 +4,21 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  tar-archives:
+    name: Создание TAR архивов
     runs-on: ubuntu-latest
 
     steps:
       - name: Проверка кода репозитория
-        uses: actions/checkout@v7
+        uses: actions/checkout@v6
 
-      - name: Настройка Docker Buildx
-        uses: docker/setup-buildx-action@v4
+      - name: Сборка Docker образа
+        run: |
+          docker build -t python-selenium-chrome-testing:latest -f ./Dockerfile_for_chrome .
+          docker save python-selenium-chrome-testing:latest > chrome.tar
 
-      - name: Сборка Chrome образа
-        id: chrome-build
-        continue-on-error: true
-        uses: docker/build-push-action@v7
+      - name: Сохранение собранного образа Chrome в кэш
+        uses: actions/cache/save@v6
         with:
-          context: .
-          file: ./Dockerfile_for_chrome
-          load: true
-          tags: python-selenium-chrome-testing:latest
-          cache-from: type=gha
-          cache-to: type=gha, mode=max
+          path: chrome.tar
+          key: python-selenium-chrome-testing
