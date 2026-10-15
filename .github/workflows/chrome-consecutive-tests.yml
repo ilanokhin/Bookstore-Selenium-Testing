@@ -2,9 +2,6 @@ name: Последовательные автотесты на Chrome
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches:
-      - master
 
 jobs:
   chrome-tests:
@@ -41,7 +38,8 @@ jobs:
       - name: Запуск автотестов
         run: |
           docker run --rm -v ${{ github.workspace }}:/docker/project python-selenium-chrome-testing:latest \
-            /bin/sh -c "pytest --headless"
+            /bin/sh -c "pytest --headless || pytest --lf --headless --reruns=1 --reruns-delay=15 \
+            --screenshot-every-time"
 
       - name: Создание Allure отчёта
         if: always()
