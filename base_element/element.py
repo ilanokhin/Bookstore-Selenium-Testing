@@ -1,15 +1,16 @@
 import re
 import time
-from typing import Callable
+from typing import Any, Callable
 
-from selenium.common.exceptions import *
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.common.exceptions import WebDriverException, StaleElementReferenceException
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait
 
-from config import *
+from config import TIMEOUT
 from enums.wait_until import WaitUntil
 
 

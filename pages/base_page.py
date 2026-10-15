@@ -6,7 +6,7 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.keys import Keys
 
 from base_element.element import Element
-from config import *
+from config import BASE_URL, TIMEOUT
 
 
 class BasePage:
