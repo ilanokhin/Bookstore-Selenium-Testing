@@ -1,8 +1,10 @@
+from typing import Any, Callable
+
 import allure
+from selenium.common.exceptions import NoAlertPresentException
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import NoAlertPresentException
-from typing import Any, Callable
+
 from base_element.element import Element
 from config import *
 

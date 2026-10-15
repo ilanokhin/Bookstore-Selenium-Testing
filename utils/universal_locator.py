@@ -3,4 +3,3 @@ def locator(css_or_xpath_locator: str) -> tuple[str, str]:
         return ("xpath", css_or_xpath_locator)
     else:
         return ("css selector", css_or_xpath_locator)
-

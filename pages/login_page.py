@@ -1,7 +1,8 @@
 import allure
 from selenium.webdriver.chrome.webdriver import WebDriver
-from pages.base_page import BasePage
+
 from elements.login_page_elements import LoginPageElements
+from pages.base_page import BasePage
 
 
 class LoginPage(BasePage):
