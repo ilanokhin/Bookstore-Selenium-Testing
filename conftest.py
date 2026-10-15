@@ -12,7 +12,7 @@ def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption("--headless", action="store_true", default=False, help="Запуск в фоновом режиме")
     parser.addoption("--disable-images", action="store_true", default=False, help="Отключить картинки")
     parser.addoption("--screenshot-every-time", action="store_true", default=False, help="Делать частые скриншоты")
-    parser.addoption("--wait-for-dom", action="store_true", default=False, help="Дожидаться загрузки ресурсов")
+    parser.addoption("--wait-for-dom", action="store_true", default=False, help="Ждать только загрузки DOM")
 
 
 @pytest.fixture
