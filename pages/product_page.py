@@ -1,8 +1,10 @@
-import allure
 import math
+
+import allure
 from selenium.webdriver.chrome.webdriver import WebDriver
-from pages.base_page import BasePage
+
 from elements.product_page_elements import ProductPageElements
+from pages.base_page import BasePage
 
 
 class ProductPage(BasePage):

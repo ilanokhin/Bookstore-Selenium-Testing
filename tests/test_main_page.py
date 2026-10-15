@@ -1,10 +1,11 @@
 import allure
-from pages.main_page import MainPage
-from pages.login_page import LoginPage
-from pages.basket_page import BasketPage
-from elements.main_page_elements import MainPageElements
-from elements.login_page_elements import LoginPageElements
+
 from elements.basket_page_elements import BasketPageElements
+from elements.login_page_elements import LoginPageElements
+from elements.main_page_elements import MainPageElements
+from pages.basket_page import BasketPage
+from pages.login_page import LoginPage
+from pages.main_page import MainPage
 
 
 @allure.sub_suite("Логин с главной страницы")

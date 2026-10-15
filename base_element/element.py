@@ -1,14 +1,16 @@
 import re
 import time
-from selenium.webdriver.chrome.webdriver import WebDriver
+from typing import Callable
+
 from selenium.common.exceptions import *
+from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.remote.webelement import WebElement
-from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
-from typing import Any, Callable
-from enums.wait_until import WaitUntil
+from selenium.webdriver.support.wait import WebDriverWait
+
 from config import *
+from enums.wait_until import WaitUntil
 
 
 class Element:

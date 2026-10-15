@@ -1,9 +1,10 @@
-import pytest
 import allure
+import pytest
 from faker import Faker
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
+
 from tests.test_login_page import TestLoginPage
 
 

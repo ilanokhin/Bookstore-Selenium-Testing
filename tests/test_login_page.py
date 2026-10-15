@@ -1,7 +1,9 @@
-import allure
 import time
-from pages.login_page import LoginPage
+
+import allure
+
 from elements.login_page_elements import LoginPageElements
+from pages.login_page import LoginPage
 
 
 @allure.sub_suite("Тест страницы логина")
