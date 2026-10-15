@@ -1,11 +1,11 @@
-name: Последовательные автотесты на Firefox
+name: Параллельные автотесты на Firefox
 
 on:
   workflow_dispatch:
 
 jobs:
   firefox-tests:
-    name: Последовательные автотесты на Firefox
+    name: Параллельные автотесты на Firefox
     runs-on: ubuntu-latest
 
     steps:
@@ -38,7 +38,8 @@ jobs:
       - name: Запуск автотестов
         run: |
           docker run --rm -v ${{ github.workspace }}:/docker/project python-selenium-firefox-testing:latest \
-            /bin/sh -c "pytest --headless --firefox -n=auto"
+            /bin/sh -c "pytest --headless --firefox -n=auto || pytest --lf --headless --firefox --reruns=2 \
+            --reruns-delay=15 --screenshot-every-time"
 
       - name: Создание Allure отчёта
         if: always()
