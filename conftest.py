@@ -12,7 +12,6 @@ def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption("--headless", action="store_true", default=False, help="Запуск в фоновом режиме")
     parser.addoption("--disable-images", action="store_true", default=False, help="Отключить картинки")
     parser.addoption("--screenshot-every-time", action="store_true", default=False, help="Делать частые скриншоты")
-    parser.addoption("--wait-for-load", action="store_true", default=False, help="Дожидаться загрузки ресурсов")
 
 
 @pytest.fixture
@@ -21,15 +20,10 @@ def driver(request: pytest.FixtureRequest):
     headless = request.config.getoption("--headless")
     images = not request.config.getoption("--disable-images")
     screenshots = request.config.getoption("--screenshot-every-time")
-    wait = request.config.getoption("--wait-for-load")
 
     browser_name = "Mozilla Firefox" if firefox else "Google Chrome"
     options = FirefoxOptions() if firefox else ChromeOptions()
-
-    if wait:
-        options.page_load_strategy = "normal"
-    else:
-        options.page_load_strategy = "eager"
+    options.page_load_strategy = "normal"
 
     if not firefox:
         options.add_argument("--disable-blink-features=AutomationControlled")
@@ -47,9 +41,7 @@ def driver(request: pytest.FixtureRequest):
 
     print(f"\nЗапускается браузер {browser_name}...")
     driver = webdriver.Firefox(options=options) if firefox else webdriver.Chrome(options=options)
-
-    if not headless:
-        driver.set_window_size(1500, 1000)
+    driver.set_window_size(1500, 1000)
 
     if screenshots:
         driver.config = {"screenshot_every_time": True}
