@@ -11,7 +11,6 @@ from tests.test_login_page import TestLoginPage
 def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption("--firefox", action="store_true", default=False, help="Использовать браузер Mozilla Firefox")
     parser.addoption("--headless", action="store_true", default=False, help="Запуск в фоновом режиме")
-    parser.addoption("--disable-images", action="store_true", default=False, help="Отключить картинки")
     parser.addoption("--screenshot-every-time", action="store_true", default=False, help="Делать частые скриншоты")
     parser.addoption("--wait-for-dom", action="store_true", default=False, help="Ждать только загрузки DOM")
 
@@ -20,7 +19,6 @@ def pytest_addoption(parser: pytest.Parser) -> None:
 def driver(request: pytest.FixtureRequest):
     firefox = request.config.getoption("--firefox")
     headless = request.config.getoption("--headless")
-    images = not request.config.getoption("--disable-images")
     screenshots = request.config.getoption("--screenshot-every-time")
     wait_for_dom = request.config.getoption("--wait-for-dom")
 
@@ -42,9 +40,6 @@ def driver(request: pytest.FixtureRequest):
         options.add_argument("--disable-gpu")
     elif headless and firefox:
         options.add_argument("--headless")
-
-    if not images:
-        options.add_argument("--blink-settings=imagesEnabled=false")
 
     print(f"\nЗапускается браузер {browser_name}...")
     driver = webdriver.Firefox(options=options) if firefox else webdriver.Chrome(options=options)
