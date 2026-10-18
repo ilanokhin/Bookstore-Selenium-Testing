@@ -31,9 +31,3 @@ jobs:
 
       - name: Отправка образа Firefox в Docker Hub
         run: docker push $REGISTRY/$FIREFOX_IMAGE
-
-      - name: Сборка образа Safari
-        run: docker build -t $REGISTRY/$SAFARI_IMAGE -f ./Dockerfile_for_safari .
-
-      - name: Отправка образа Safari в Docker Hub
-        run: docker push $REGISTRY/$SAFARI_IMAGE
