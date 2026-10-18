@@ -1,13 +1,13 @@
 name: Параллельные автотесты на Chrome
-
 on:
   workflow_dispatch:
-  pull_request:
-    branches:
-      - master
+  workflow_call:
+env:
+  REPOSITORY: ilanokhin
+  IMAGE: python-selenium-chrome-testing:latest
 
 jobs:
-  chrome-tests:
+  chrome-parallel-tests:
     name: Параллельные автотесты на Chrome
     runs-on: ubuntu-latest
 
@@ -15,44 +15,25 @@ jobs:
       - name: Проверка кода репозитория
         uses: actions/checkout@v6
 
-      - name: Проверка кэша
-        id: cache-restore
-        uses: actions/cache/restore@v6
-        with:
-          path: chrome.tar
-          key: python-selenium-chrome-testing
-
-      - name: Загрузка образа в Docker (если был в кэше)
-        if: steps.cache-restore.outputs.cache-hit == 'true'
-        run: docker load -i chrome.tar
-
-      - name: Загрузка образа с Docker Hub (если не было в кэше)
-        id: docker-pull
-        if: steps.cache-restore.outputs.cache-hit != 'true'
+      - name: Загрузка образа с Docker Hub
         run: |
-          docker pull ilanokhin/python-selenium-chrome-testing:latest
-          docker tag ilanokhin/python-selenium-chrome-testing:latest python-selenium-chrome-testing:latest
-        continue-on-error: true
-
-      - name: Сборка Docker образа (если загрузка не удалась)
-        if: steps.docker-pull.outcome == 'failure'
-        run: docker build -t python-selenium-chrome-testing:latest -f ./Dockerfile_for_chrome .
+          docker pull $REPOSITORY/$IMAGE
+          docker tag $REPOSITORY/$IMAGE $IMAGE
 
       - name: Запуск автотестов
         run: |
-          docker run --rm -v ${{ github.workspace }}:/docker/project python-selenium-chrome-testing:latest \
-            /bin/sh -c "pytest --headless -n=auto || pytest --lf --headless --reruns=2 --reruns-delay=15 \
-            --screenshot-every-time"
+          docker run --rm -v ${{ github.workspace }}:/docker/project $IMAGE /bin/sh -c \
+          "pytest --headless -n=auto || pytest --lf --headless --reruns=2 --reruns-delay=15 --screenshot-every-time"
 
       - name: Создание Allure отчёта
         if: always()
         run: |
-          docker run --rm -v ${{ github.workspace }}:/docker/project python-selenium-chrome-testing:latest \
-            /bin/sh -c "allure generate allure-data -c --single-file"
+          docker run --rm -v ${{ github.workspace }}:/docker/project $IMAGE /bin/sh -c \
+          "allure generate allure-data -c --single-file; mv allure-report/index.html allure-report.html"
 
       - name: Выгрузка Allure отчёта
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: allure-report
-          path: allure-report
+          path: allure-report.html

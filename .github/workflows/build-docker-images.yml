@@ -1,0 +1,39 @@
+name: Сборка докер образов
+on:
+  workflow_dispatch:
+env:
+  REGISTRY: ilanokhin
+  CHROME_IMAGE: python-selenium-chrome-testing:latest
+  FIREFOX_IMAGE: python-selenium-firefox-testing:latest
+  SAFARI_IMAGE: python-selenium-safari-testing:latest
+  TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+jobs:
+  build-docker-images:
+    name: Сборка докер образов
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Проверка кода репозитория
+        uses: actions/checkout@v6
+
+      - name: Вход в Docker Hub
+        run: docker login -u ilanokhin -p $TOKEN
+
+      - name: Сборка образа Chrome
+        run: docker build -t $REGISTRY/$CHROME_IMAGE -f ./Dockerfile_for_chrome .
+
+      - name: Отправка образа Chrome в Docker Hub
+        run: docker push $REGISTRY/$CHROME_IMAGE
+
+      - name: Сборка образа Firefox
+        run: docker build -t $REGISTRY/$FIREFOX_IMAGE -f ./Dockerfile_for_firefox .
+
+      - name: Отправка образа Firefox в Docker Hub
+        run: docker push $REGISTRY/$FIREFOX_IMAGE
+
+      - name: Сборка образа Safari
+        run: docker build -t $REGISTRY/$SAFARI_IMAGE -f ./Dockerfile_for_safari .
+
+      - name: Отправка образа Safari в Docker Hub
+        run: docker push $REGISTRY/$SAFARI_IMAGE
