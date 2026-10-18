@@ -1,0 +1,14 @@
+name: Проверки при PR
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  check-1:
+    name: Первая проверка
+    uses: ./.github/workflows/chrome-parallel-tests.yml
+  check-2:
+    name: Вторая проверка
+    uses: ./.github/workflows/firefox-parallel-tests.yml
+    needs: check-1

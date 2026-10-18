@@ -1,0 +1,40 @@
+name: Сборка докер образов для GitLab
+on:
+  workflow_dispatch:
+env:
+  REGISTRY: registry.gitlab.com
+  REPOSITORY: ilanokhin/gitlab-bookstore-selenium-testing
+  CHROME_IMAGE: python-selenium-chrome-testing:latest
+  FIREFOX_IMAGE: python-selenium-firefox-testing:latest
+  SAFARI_IMAGE: python-selenium-safari-testing:latest
+  TOKEN: ${{ secrets.GITLAB_REGISTRY_TOKEN }}
+
+jobs:
+  build-docker-images:
+    name: Сборка докер образов для GitLab
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Проверка кода репозитория
+        uses: actions/checkout@v6
+
+      - name: Вход в GitLab Registry
+        run: docker login -u ilanokhin -p $TOKEN $REGISTRY
+
+      - name: Сборка образа Chrome
+        run: docker build -t $REGISTRY/$REPOSITORY/$CHROME_IMAGE -f ./Dockerfile_for_chrome .
+
+      - name: Отправка образа Chrome в GitLab Registry
+        run: docker push $REGISTRY/$REPOSITORY/$CHROME_IMAGE
+
+      - name: Сборка образа Firefox
+        run: docker build -t $REGISTRY/$REPOSITORY/$FIREFOX_IMAGE -f ./Dockerfile_for_firefox .
+
+      - name: Отправка образа Firefox в GitLab Registry
+        run: docker push $REGISTRY/$REPOSITORY/$FIREFOX_IMAGE
+
+      - name: Сборка образа Safari
+        run: docker build -t $REGISTRY/$REPOSITORY/$SAFARI_IMAGE -f ./Dockerfile_for_safari .
+
+      - name: Отправка образа Safari в GitLab Registry
+        run: docker push $REGISTRY/$REPOSITORY/$SAFARI_IMAGE

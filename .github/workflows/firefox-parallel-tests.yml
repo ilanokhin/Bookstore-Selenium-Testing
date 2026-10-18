@@ -1,10 +1,13 @@
 name: Параллельные автотесты на Firefox
-
 on:
   workflow_dispatch:
+  workflow_call:
+env:
+  REPOSITORY: ilanokhin
+  IMAGE: python-selenium-firefox-testing:latest
 
 jobs:
-  firefox-tests:
+  firefox-parallel-tests:
     name: Параллельные автотесты на Firefox
     runs-on: ubuntu-latest
 
@@ -12,44 +15,26 @@ jobs:
       - name: Проверка кода репозитория
         uses: actions/checkout@v6
 
-      - name: Проверка кэша
-        id: cache-restore
-        uses: actions/cache/restore@v6
-        with:
-          path: firefox.tar
-          key: python-selenium-firefox-testing
-
-      - name: Загрузка образа в Docker (если был в кэше)
-        if: steps.cache-restore.outputs.cache-hit == 'true'
-        run: docker load -i firefox.tar
-
-      - name: Загрузка образа с Docker Hub (если не было в кэше)
-        id: docker-pull
-        if: steps.cache-restore.outputs.cache-hit != 'true'
+      - name: Загрузка образа с Docker Hub
         run: |
-          docker pull ilanokhin/python-selenium-firefox-testing:latest
-          docker tag ilanokhin/python-selenium-firefox-testing:latest python-selenium-firefox-testing:latest
-        continue-on-error: true
-
-      - name: Сборка Docker образа (если загрузка не удалась)
-        if: steps.docker-pull.outcome == 'failure'
-        run: docker build -t python-selenium-firefox-testing:latest -f ./Dockerfile_for_firefox .
+          docker pull $REPOSITORY/$IMAGE
+          docker tag $REPOSITORY/$IMAGE $IMAGE
 
       - name: Запуск автотестов
         run: |
-          docker run --rm -v ${{ github.workspace }}:/docker/project python-selenium-firefox-testing:latest \
-            /bin/sh -c "pytest --headless --firefox -n=auto || pytest --lf --headless --firefox --reruns=2 \
-            --reruns-delay=15 --screenshot-every-time"
+          docker run --rm -v ${{ github.workspace }}:/docker/project $IMAGE /bin/sh -c \
+          "pytest --headless --firefox -n=auto || pytest --lf --headless --firefox --reruns=2 --reruns-delay=15 \
+          --screenshot-every-time"
 
       - name: Создание Allure отчёта
         if: always()
         run: |
-          docker run --rm -v ${{ github.workspace }}:/docker/project python-selenium-firefox-testing:latest \
-            /bin/sh -c "allure generate allure-data -c --single-file"
+          docker run --rm -v ${{ github.workspace }}:/docker/project $IMAGE /bin/sh -c \
+          "allure generate allure-data -c --single-file; mv allure-report/index.html allure-report.html"
 
       - name: Выгрузка Allure отчёта
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: allure-report
-          path: allure-report
+          path: allure-report.html

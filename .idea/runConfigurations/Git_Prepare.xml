@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Git Pull" type="ShConfigurationType">
-    <option name="SCRIPT_TEXT" value="git checkout master; git pull; git fetch --prune; git checkout feature; git rebase master; clear; git log --graph --all --pretty=format:&quot;%C(yellow)%h%C(bold green) %d %C(reset)&lt;--%C(cyan) %an (%ar) %n %C(reset)%s %n&quot;" />
+  <configuration default="false" name="Git Prepare" type="ShConfigurationType">
+    <option name="SCRIPT_TEXT" value="MSG=&quot;$(git log -1 --pretty=%s)&quot;; git fetch origin --prune; git branch -f master origin/master; git branch -f old; git checkout master; git checkout -B feature; git merge --squash old; git commit -m &quot;$MSG&quot;; clear; git log --graph --all --pretty=format:&quot;%C(yellow)%h%C(bold green) %d %C(reset)&lt;--%C(cyan) %an (%ar) %n %C(reset)%s %n&quot;" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
     <option name="SCRIPT_PATH" value="" />
     <option name="SCRIPT_OPTIONS" value="" />
