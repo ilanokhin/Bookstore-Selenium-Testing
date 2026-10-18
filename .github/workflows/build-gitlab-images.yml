@@ -32,9 +32,3 @@ jobs:
 
       - name: Отправка образа Firefox в GitLab Registry
         run: docker push $REGISTRY/$REPOSITORY/$FIREFOX_IMAGE
-
-      - name: Сборка образа Safari
-        run: docker build -t $REGISTRY/$REPOSITORY/$SAFARI_IMAGE -f ./Dockerfile_for_safari .
-
-      - name: Отправка образа Safari в GitLab Registry
-        run: docker push $REGISTRY/$REPOSITORY/$SAFARI_IMAGE
