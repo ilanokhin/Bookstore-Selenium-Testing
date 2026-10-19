@@ -10,7 +10,7 @@ env:
   TOKEN: ${{ secrets.GITLAB_REGISTRY_TOKEN }}
 
 jobs:
-  build-docker-images:
+  build-gitlab-images:
     name: Сборка докер образов для GitLab
     runs-on: ubuntu-latest
 
